@@ -1,12 +1,392 @@
 <!DOCTYPE html>
 <html lang="it">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Tech it ISII</title>
-    <link rel="stylesheet" href="STYLE/style.css">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Team #25074 | Tech it ISII — FIRST Tech Challenge</title>
+  <link rel="stylesheet" href="../STYLE/style.css" />
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Syne:wght@400;500;700&display=swap" rel="stylesheet" />
 </head>
 <body>
-    <h1>Tech it ISII</h1>
+
+  <!-- CURSOR FOLLOWER -->
+  <div class="cursor-dot" id="cursorDot"></div>
+  <div class="cursor-ring" id="cursorRing"></div>
+
+  <!-- NOISE OVERLAY -->
+  <div class="noise-overlay"></div>
+
+  <!-- NAV -->
+  <nav class="navbar" id="navbar">
+    <div class="nav-logo">
+      <span class="logo-bracket">[</span>
+      <span class="logo-text">NEXUS</span>
+      <span class="logo-num">#12345</span>
+      <span class="logo-bracket">]</span>
+    </div>
+    <ul class="nav-links">
+      <li><a href="#hero" class="nav-link" data-text="HOME">HOME</a></li>
+      <li><a href="#about" class="nav-link" data-text="CHI SIAMO">CHI SIAMO</a></li>
+      <li><a href="#robot" class="nav-link" data-text="ROBOT">ROBOT</a></li>
+      <li><a href="#team" class="nav-link" data-text="TEAM">TEAM</a></li>
+      <li><a href="#stagioni" class="nav-link" data-text="STAGIONI">STAGIONI</a></li>
+      <li><a href="#contatti" class="nav-link cta-nav" data-text="CONTATTI">CONTATTI</a></li>
+    </ul>
+    <button class="nav-toggle" id="navToggle" aria-label="Menu">
+      <span></span><span></span><span></span>
+    </button>
+  </nav>
+
+  <!-- HERO -->
+  <section class="hero" id="hero">
+    <div class="hero-grid-overlay"></div>
+    <div class="hero-content">
+      <div class="hero-tag animate-in" style="--delay:0.1s">FIRST TECH CHALLENGE · STAGIONE 2025–26</div>
+      <h1 class="hero-title animate-in" style="--delay:0.25s">
+        <span class="hero-line">TEAM</span>
+        <span class="hero-line accent">NEXUS</span>
+        <span class="hero-line">#12345</span>
+      </h1>
+      <p class="hero-sub animate-in" style="--delay:0.45s">
+        Costruiamo robot. Risolviamo problemi. Ispiriamo il futuro.
+      </p>
+      <div class="hero-cta animate-in" style="--delay:0.6s">
+        <a href="#robot" class="btn btn-primary">Scopri il robot →</a>
+        <a href="#team" class="btn btn-ghost">Il nostro team</a>
+      </div>
+    </div>
+    <div class="hero-stats animate-in" style="--delay:0.75s">
+      <div class="stat">
+        <span class="stat-num" data-target="5">0</span>
+        <span class="stat-label">Anni di attività</span>
+      </div>
+      <div class="stat-divider"></div>
+      <div class="stat">
+        <span class="stat-num" data-target="12">0</span>
+        <span class="stat-label">Membri del team</span>
+      </div>
+      <div class="stat-divider"></div>
+      <div class="stat">
+        <span class="stat-num" data-target="3">0</span>
+        <span class="stat-label">Premi vinti</span>
+      </div>
+    </div>
+    <div class="hero-scroll-hint">
+      <span>SCROLL</span>
+      <div class="scroll-line"></div>
+    </div>
+  </section>
+
+  <!-- ABOUT -->
+  <section class="about section" id="about">
+    <div class="container">
+      <div class="section-label">// 01 — CHI SIAMO</div>
+      <div class="about-grid">
+        <div class="about-text">
+          <h2 class="section-title">Ingegneria<br><em>e</em> passione</h2>
+          <p>Siamo Team Nexus, una squadra di studenti appassionati di robotica, ingegneria e tecnologia. 
+          Partecipiamo ogni anno alla <strong>FIRST Tech Challenge</strong>, una competizione internazionale che mette alla prova 
+          le nostre capacità di progettazione, programmazione e lavoro di squadra.</p>
+          <p>Il nostro obiettivo non è solo vincere — è crescere come persone, sviluppare competenze STEM 
+          reali e ispirare altri giovani a scoprire il mondo della tecnologia.</p>
+          <div class="about-badges">
+            <span class="badge">🤖 Robotica</span>
+            <span class="badge">💻 Programmazione</span>
+            <span class="badge">⚙️ Meccanica</span>
+            <span class="badge">🎨 Design</span>
+          </div>
+        </div>
+        <div class="about-visual">
+          <div class="about-card" data-tilt>
+            <div class="about-card-inner">
+              <div class="card-icon">⚡</div>
+              <h3>La nostra missione</h3>
+              <p>Ispirare i giovani ad essere i leader scientifici e tecnologici di domani, attraverso il programma FIRST.</p>
+            </div>
+          </div>
+          <div class="about-card" data-tilt>
+            <div class="about-card-inner">
+              <div class="card-icon">🏆</div>
+              <h3>FTC Season</h3>
+              <p>Ogni anno affrontiamo una nuova sfida con un campo e regole completamente diverse. Adattarsi è il nostro superpotere.</p>
+            </div>
+          </div>
+          <div class="about-card about-card-wide" data-tilt>
+            <div class="about-card-inner">
+              <div class="card-icon">🌍</div>
+              <h3>FIRST Ideals — Gracious Professionalism®</h3>
+              <p>Competiamo con integrità, rispettiamo gli avversari e condividiamo la nostra conoscenza. Questo è lo spirito FIRST.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ROBOT -->
+  <section class="robot section" id="robot">
+    <div class="container">
+      <div class="section-label">// 02 — IL NOSTRO ROBOT</div>
+      <h2 class="section-title center">
+        Meet <em>APEX</em>
+      </h2>
+      <div class="robot-showcase">
+        <div class="robot-display">
+          <div class="robot-frame">
+            <div class="robot-placeholder">
+              <div class="robot-svg-wrapper">
+                <svg viewBox="0 0 200 220" fill="none" xmlns="http://www.w3.org/2000/svg" class="robot-svg">
+                  <!-- Body -->
+                  <rect x="50" y="60" width="100" height="90" rx="8" fill="url(#bodyGrad)" stroke="#00f0ff" stroke-width="1.5"/>
+                  <!-- Head -->
+                  <rect x="65" y="30" width="70" height="40" rx="6" fill="url(#headGrad)" stroke="#ff6b35" stroke-width="1.5"/>
+                  <!-- Eyes -->
+                  <circle cx="85" cy="50" r="8" fill="#00f0ff" class="robot-eye"/>
+                  <circle cx="115" cy="50" r="8" fill="#00f0ff" class="robot-eye"/>
+                  <circle cx="85" cy="50" r="4" fill="#001a2e"/>
+                  <circle cx="115" cy="50" r="4" fill="#001a2e"/>
+                  <!-- Arms -->
+                  <rect x="20" y="70" width="25" height="12" rx="4" fill="#1a2040" stroke="#7c3aed" stroke-width="1"/>
+                  <rect x="155" y="70" width="25" height="12" rx="4" fill="#1a2040" stroke="#7c3aed" stroke-width="1"/>
+                  <!-- Wheels -->
+                  <circle cx="70" cy="165" r="16" fill="#1a2040" stroke="#00f0ff" stroke-width="2"/>
+                  <circle cx="130" cy="165" r="16" fill="#1a2040" stroke="#00f0ff" stroke-width="2"/>
+                  <circle cx="70" cy="165" r="7" fill="#00f0ff" opacity="0.3"/>
+                  <circle cx="130" cy="165" r="7" fill="#00f0ff" opacity="0.3"/>
+                  <!-- Body details -->
+                  <rect x="65" y="80" width="70" height="3" rx="1.5" fill="#00f0ff" opacity="0.5"/>
+                  <rect x="65" y="90" width="50" height="3" rx="1.5" fill="#7c3aed" opacity="0.6"/>
+                  <rect x="75" y="105" width="50" height="30" rx="4" fill="#0a1628" stroke="#00f0ff" stroke-width="1" opacity="0.8"/>
+                  <!-- Screen lines -->
+                  <rect x="80" y="110" width="40" height="2" rx="1" fill="#00f0ff" opacity="0.7"/>
+                  <rect x="80" y="116" width="30" height="2" rx="1" fill="#00f0ff" opacity="0.5"/>
+                  <rect x="80" y="122" width="35" height="2" rx="1" fill="#ff6b35" opacity="0.6"/>
+                  <defs>
+                    <linearGradient id="bodyGrad" x1="50" y1="60" x2="150" y2="150" gradientUnits="userSpaceOnUse">
+                      <stop stop-color="#0f1e3d"/>
+                      <stop offset="1" stop-color="#1a2a50"/>
+                    </linearGradient>
+                    <linearGradient id="headGrad" x1="65" y1="30" x2="135" y2="70" gradientUnits="userSpaceOnUse">
+                      <stop stop-color="#1a2a50"/>
+                      <stop offset="1" stop-color="#0f1e3d"/>
+                    </linearGradient>
+                  </defs>
+                </svg>
+              </div>
+              <div class="robot-scan-line"></div>
+            </div>
+            <div class="robot-glow"></div>
+          </div>
+        </div>
+        <div class="robot-specs">
+          <h3 class="specs-title">Specifiche tecniche</h3>
+          <div class="spec-list">
+            <div class="spec-item">
+              <span class="spec-key">Telaio</span>
+              <span class="spec-val">Alluminio 6061-T6 · 18×18"</span>
+            </div>
+            <div class="spec-item">
+              <span class="spec-key">Motori</span>
+              <span class="spec-val">4× REV HD Hex · 312 RPM</span>
+            </div>
+            <div class="spec-item">
+              <span class="spec-key">Drive Train</span>
+              <span class="spec-val">Mecanum Wheels 4WD</span>
+            </div>
+            <div class="spec-item">
+              <span class="spec-key">Controller</span>
+              <span class="spec-val">REV Control Hub v1.1</span>
+            </div>
+            <div class="spec-item">
+              <span class="spec-key">Linguaggio</span>
+              <span class="spec-val">Java · FTC SDK</span>
+            </div>
+            <div class="spec-item">
+              <span class="spec-key">Autonomo</span>
+              <span class="spec-val">AprilTags + OpenCV</span>
+            </div>
+            <div class="spec-item">
+              <span class="spec-key">Peso</span>
+              <span class="spec-val">15.4 kg</span>
+            </div>
+          </div>
+          <div class="robot-sub-features">
+            <div class="feature-pill">🦾 Braccio articolato</div>
+            <div class="feature-pill">📷 Vision processing</div>
+            <div class="feature-pill">📡 Odometria 3 ruote</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- TEAM -->
+  <section class="team section" id="team">
+    <div class="container">
+      <div class="section-label">// 03 — IL TEAM</div>
+      <h2 class="section-title center">Le menti dietro<br><em>il robot</em></h2>
+      <div class="team-grid">
+        <div class="member-card" data-tilt>
+          <div class="member-avatar" style="--c:#00f0ff">M</div>
+          <h4 class="member-name">Marco Rossi</h4>
+          <span class="member-role">Team Captain · Programmazione</span>
+          <div class="member-skills">
+            <span>Java</span><span>Autonomo</span>
+          </div>
+        </div>
+        <div class="member-card" data-tilt>
+          <div class="member-avatar" style="--c:#ff6b35">G</div>
+          <h4 class="member-name">Giulia Bianchi</h4>
+          <span class="member-role">Lead Engineer · CAD</span>
+          <div class="member-skills">
+            <span>Fusion 360</span><span>Meccanica</span>
+          </div>
+        </div>
+        <div class="member-card" data-tilt>
+          <div class="member-avatar" style="--c:#7c3aed">L</div>
+          <h4 class="member-name">Luca Ferrari</h4>
+          <span class="member-role">Software Dev · Vision</span>
+          <div class="member-skills">
+            <span>OpenCV</span><span>TensorFlow</span>
+          </div>
+        </div>
+        <div class="member-card" data-tilt>
+          <div class="member-avatar" style="--c:#22c55e">S</div>
+          <h4 class="member-name">Sara Martini</h4>
+          <span class="member-role">Business · Outreach</span>
+          <div class="member-skills">
+            <span>Pitch</span><span>Sponsor</span>
+          </div>
+        </div>
+        <div class="member-card" data-tilt>
+          <div class="member-avatar" style="--c:#f59e0b">A</div>
+          <h4 class="member-name">Alex Conti</h4>
+          <span class="member-role">Meccatronica · Build</span>
+          <div class="member-skills">
+            <span>CNC</span><span>3D Print</span>
+          </div>
+        </div>
+        <div class="member-card" data-tilt>
+          <div class="member-avatar" style="--c:#ec4899">E</div>
+          <h4 class="member-name">Elena Russo</h4>
+          <span class="member-role">Design · Media</span>
+          <div class="member-skills">
+            <span>Figma</span><span>Social</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- STAGIONI -->
+  <section class="stagioni section" id="stagioni">
+    <div class="container">
+      <div class="section-label">// 04 — STAGIONI</div>
+      <h2 class="section-title center">Il nostro<br><em>percorso</em></h2>
+      <div class="timeline">
+        <div class="timeline-item" data-side="left">
+          <div class="timeline-dot"></div>
+          <div class="timeline-card">
+            <span class="tl-year">2023–24</span>
+            <h4>CENTERSTAGE™</h4>
+            <p>Prima partecipazione regionale. Abbiamo sviluppato un robot capace di piazzare pixel autonomamente. Finish: 6° distretto.</p>
+            <div class="tl-badge win">🏆 Inspire Award</div>
+          </div>
+        </div>
+        <div class="timeline-item" data-side="right">
+          <div class="timeline-dot"></div>
+          <div class="timeline-card">
+            <span class="tl-year">2024–25</span>
+            <h4>INTO THE DEEP™</h4>
+            <p>Refactoring completo del software, introduzione Mecanum e vision con AprilTags. Primo posto distretto!</p>
+            <div class="tl-badge win">🥇 1° Distretto</div>
+          </div>
+        </div>
+        <div class="timeline-item" data-side="left">
+          <div class="timeline-dot active"></div>
+          <div class="timeline-card active">
+            <span class="tl-year">2025–26</span>
+            <h4>IN SEASON 🔥</h4>
+            <p>Nuova stagione, nuove sfide. Robot completamente riprogettato con braccio articolato e sistema di scoring migliorato. Siamo pronti.</p>
+            <div class="tl-badge current">⚡ In corso</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- CONTATTI -->
+  <section class="contatti section" id="contatti">
+    <div class="container">
+      <div class="section-label">// 05 — CONTATTI</div>
+      <div class="contatti-grid">
+        <div class="contatti-text">
+          <h2 class="section-title">Vuoi<br><em>contattarci?</em></h2>
+          <p>Sei uno sponsor, un partner scolastico, un giornalista o semplicemente un appassionato? Scrivici, siamo sempre felici di parlare di robotica!</p>
+          <div class="contact-info">
+            <div class="contact-item">
+              <span class="contact-icon">📧</span>
+              <a href="mailto:team@nexusrobotics.it">team@nexusrobotics.it</a>
+            </div>
+            <div class="contact-item">
+              <span class="contact-icon">📱</span>
+              <a href="#">@NexusRobotics12345</a>
+            </div>
+            <div class="contact-item">
+              <span class="contact-icon">📍</span>
+              <span>ITIS Leonardo da Vinci, Milano</span>
+            </div>
+          </div>
+        </div>
+        <form class="contact-form" id="contactForm" novalidate>
+          <div class="form-group">
+            <input type="text" id="nome" required />
+            <label for="nome">Nome</label>
+          </div>
+          <div class="form-group">
+            <input type="email" id="email" required />
+            <label for="email">Email</label>
+          </div>
+          <div class="form-group">
+            <textarea id="messaggio" rows="4" required></textarea>
+            <label for="messaggio">Messaggio</label>
+          </div>
+          <button type="submit" class="btn btn-primary btn-full">
+            <span class="btn-text">Invia messaggio →</span>
+            <span class="btn-loading">⏳ Invio...</span>
+          </button>
+          <div class="form-success" id="formSuccess">
+            ✅ Messaggio inviato! Ti risponderemo presto.
+          </div>
+        </form>
+      </div>
+    </div>
+  </section>
+
+  <!-- FOOTER -->
+  <footer class="footer">
+    <div class="container">
+      <div class="footer-top">
+        <div class="footer-brand">
+          <span class="logo-bracket">[</span>
+          <span class="logo-text">NEXUS</span>
+          <span class="logo-num">#12345</span>
+          <span class="logo-bracket">]</span>
+          <p>FIRST Tech Challenge · Stagione 2025–26</p>
+        </div>
+        <div class="footer-links">
+          <a href="https://www.firstinspires.org" target="_blank" rel="noopener">FIRST Inspires ↗</a>
+          <a href="https://github.com/NexusRobotics12345" target="_blank" rel="noopener">GitHub ↗</a>
+          <a href="#hero">Torna su ↑</a>
+        </div>
+      </div>
+      <div class="footer-bottom">
+        <span>© 2025–26 Team Nexus #12345 — Powered by curiosità e caffè ☕</span>
+        <span class="footer-ftc">Built for FIRST Tech Challenge</span>
+      </div>
+    </div>
+  </footer>
+
+  <script src="../SCRIPT/script.js"></script>
 </body>
 </html>
