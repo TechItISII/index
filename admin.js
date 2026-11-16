@@ -159,6 +159,7 @@ document.addEventListener("DOMContentLoaded", async () => {
         p.style.display = p.id === `tab-${target}` ? "block" : "none";
       });
       if (target === "posts") loadPosts();
+      if (target === "live") loadLiveStatus();
       if (target === "history" && currentProfile.role === "admin") loadHistory();
       if (target === "console" && currentProfile.role === "admin") loadAdminConsole();
       if (target === "profile") loadProfileAndMfa();
@@ -186,8 +187,8 @@ document.addEventListener("DOMContentLoaded", async () => {
     if (!hash) return false;
     const isAdmin = currentProfile.role === "admin";
     const allowedTabs = isAdmin
-      ? ["editor", "posts", "history", "console", "profile"]
-      : ["editor", "posts", "profile"];
+      ? ["editor", "posts", "live", "history", "console", "profile"]
+      : ["editor", "posts", "live", "profile"];
     if (allowedTabs.includes(hash)) {
       switchToTab(hash);
       return true;
@@ -924,6 +925,64 @@ document.addEventListener("DOMContentLoaded", async () => {
 
       resetUserForm();
       await loadAdminConsole();
+    });
+  }
+
+  // Live Stream Tab
+  const liveStatusForm = document.getElementById("liveStatusForm");
+  const livePlatform = document.getElementById("livePlatform");
+  const liveIsActive = document.getElementById("liveIsActive");
+  const liveTitle = document.getElementById("liveTitle");
+  const liveStreamUrl = document.getElementById("liveStreamUrl");
+  const liveThumbnailUrl = document.getElementById("liveThumbnailUrl");
+
+  async function loadLiveStatus() {
+    if (!liveStatusForm) return;
+    const { data } = await client.from("live_status").select("*").eq("id", "main").maybeSingle();
+    if (!data) return;
+    livePlatform.value = data.platform || "youtube";
+    liveIsActive.checked = Boolean(data.is_live);
+    liveTitle.value = data.title || "";
+    liveStreamUrl.value = data.stream_url || "";
+    liveThumbnailUrl.value = data.thumbnail_url || "";
+  }
+
+  if (livePlatform) {
+    livePlatform.addEventListener("change", () => {
+      if (livePlatform.value === "instagram" && liveStreamUrl.value.includes("youtube.com")) {
+        liveStreamUrl.value = "https://www.instagram.com/tech_it_isii/live/";
+      } else if (livePlatform.value === "youtube" && liveStreamUrl.value.includes("instagram.com")) {
+        liveStreamUrl.value = "https://www.youtube.com/@TechItISII/live";
+      }
+    });
+  }
+
+  if (liveStatusForm) {
+    liveStatusForm.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const { data: { user } } = await client.auth.getUser();
+      const payload = {
+        id: "main",
+        is_live: liveIsActive.checked,
+        platform: livePlatform.value,
+        title: liveTitle.value.trim(),
+        stream_url: liveStreamUrl.value.trim(),
+        thumbnail_url: liveThumbnailUrl.value.trim() || null,
+        updated_by: user ? H.getDisplayName(user, currentProfile) : "team",
+        updated_at: new Date().toISOString()
+      };
+      const { error } = await client.from("live_status").upsert(payload);
+      if (error) {
+        showFeedback(dashFeedback, `Live status error: ${error.message}`, true);
+        return;
+      }
+      showFeedback(
+        dashFeedback,
+        liveIsActive.checked
+          ? `🔴 LIVE MODE ACTIVE (${livePlatform.value.toUpperCase()})! Home page updated.`
+          : "Live mode turned OFF. Home page returned to Latest News.",
+        false
+      );
     });
   }
 

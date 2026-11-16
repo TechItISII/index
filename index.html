@@ -109,17 +109,21 @@
           <div class="hud-corner bl"></div>
           <div class="hud-corner br"></div>
           <div class="crest-header">
-            <span class="news-tag"><i class="status-pulse"></i> // LATEST NEWS</span>
+            <span class="news-tag" id="latestNewsTag"><i class="status-pulse"></i> // LATEST NEWS</span>
             <span class="crest-badge" id="latestNewsBadge">REBRAND 2026–27</span>
           </div>
           <div class="crest-image-wrap">
             <img src="IMG/logo-esports-banner.jpg" alt="Tech It ISII Latest News" class="crest-img"
               id="latestNewsImg" />
+            <div class="live-overlay-badge" id="liveOverlayBadge" style="display:none;">
+              <span class="live-rec-dot"></span>
+              <span id="liveOverlayText">LIVE STREAM</span>
+            </div>
             <div class="news-scan-line" aria-hidden="true"></div>
           </div>
           <div class="news-preview">
             <strong class="news-preview-title" id="latestNewsTitle">New Cyber-Lupa Identity</strong>
-            <span class="news-read-more">READ MORE →</span>
+            <span class="news-read-more" id="latestNewsCta">READ MORE →</span>
           </div>
         </button>
       </div>

@@ -6,7 +6,10 @@
 
 window.TECHIT_CONFIG = {
   SUPABASE_URL: "https://fxszsmtlhqsbpwcodbms.supabase.co",
-  SUPABASE_ANON_KEY: "sb_publishable_YRnpGSWZD4B7fM3gY4ekVw_uyTFUzKM"
+  SUPABASE_ANON_KEY: "sb_publishable_YRnpGSWZD4B7fM3gY4ekVw_uyTFUzKM",
+  // Optional: add your YouTube Data API v3 key & Channel ID for automatic YT Live detection
+  YOUTUBE_API_KEY: "",
+  YOUTUBE_CHANNEL_ID: ""
 };
 
 window.TechItHelpers = {
@@ -110,6 +113,14 @@ window.TechItHelpers = {
     if (/^https?:\/\/(www\.)?instagram\.com\/(p|reel|tv)\//i.test(clean)) return "instagram";
     if (/^https?:\/\/(www\.)?(twitter\.com|x\.com)\/[^/]+\/status\/\d+/i.test(clean)) return "x";
     return null;
+  },
+
+  extractYouTubeId(url) {
+    if (!url) return null;
+    const m = String(url).match(
+      /(?:youtube\.com\/(?:watch\?v=|live\/|embed\/|shorts\/)|youtu\.be\/)([A-Za-z0-9_-]{11})/
+    );
+    return m ? m[1] : null;
   },
 
   renderSocialEmbed(container, socialUrl) {

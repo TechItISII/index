@@ -253,6 +253,41 @@ document.addEventListener("DOMContentLoaded", () => {
   if (newsCardTrigger && newsModal) {
     let latestSocialUrl = "";
     let socialRendered = false;
+    let activeLiveUrl = "";
+
+    const activateLiveCard = ({ platform, title, streamUrl, thumbnailUrl }) => {
+      activeLiveUrl = streamUrl;
+      newsCardTrigger.classList.add("is-live-stream", `is-live-${platform}`);
+      newsCardTrigger.removeAttribute("aria-haspopup");
+      newsCardTrigger.setAttribute("aria-label", `Watch Live on ${platform}: ${title}`);
+
+      const tagEl = document.getElementById("latestNewsTag");
+      const badgeEl = document.getElementById("latestNewsBadge");
+      const imgEl = document.getElementById("latestNewsImg");
+      const titleEl = document.getElementById("latestNewsTitle");
+      const ctaEl = document.getElementById("latestNewsCta");
+      const overlayEl = document.getElementById("liveOverlayBadge");
+      const overlayTextEl = document.getElementById("liveOverlayText");
+
+      const isYT = platform === "youtube";
+      if (tagEl) tagEl.innerHTML = `<i class="status-pulse"></i> ● LIVE NOW`;
+      if (badgeEl) badgeEl.textContent = isYT ? "YOUTUBE LIVE" : "INSTAGRAM LIVE";
+      if (titleEl) titleEl.textContent = title || (isYT ? "Watch us live on YouTube" : "Watch us live on Instagram");
+      if (ctaEl) ctaEl.textContent = isYT ? "OPEN YOUTUBE ↗" : "OPEN INSTAGRAM ↗";
+      if (overlayEl) overlayEl.style.display = "inline-flex";
+      if (overlayTextEl) overlayTextEl.textContent = isYT ? "ON AIR · YOUTUBE" : "ON AIR · @TECH_IT_ISII";
+
+      const ytId = isYT ? window.TechItHelpers?.extractYouTubeId(streamUrl) : null;
+      if (imgEl) {
+        if (thumbnailUrl) {
+          imgEl.src = thumbnailUrl;
+        } else if (ytId) {
+          imgEl.src = `https://i.ytimg.com/vi/${ytId}/hqdefault.jpg`;
+        } else {
+          imgEl.src = "IMG/logo-esports-banner.jpg";
+        }
+      }
+    };
 
     const setNewsModalOpen = (open) => {
       newsModal.classList.toggle("is-open", open);
@@ -268,6 +303,10 @@ document.addEventListener("DOMContentLoaded", () => {
     };
 
     newsCardTrigger.addEventListener("click", () => {
+      if (activeLiveUrl) {
+        window.open(activeLiveUrl, "_blank", "noopener,noreferrer");
+        return;
+      }
       setNewsModalOpen(!newsModal.classList.contains("is-open"));
     });
 
@@ -283,17 +322,69 @@ document.addEventListener("DOMContentLoaded", () => {
       }
     });
 
-    // Auto-load latest published news from Supabase
+    // Auto-check Live Stream (Supabase live_status + optional YouTube API v3) or Latest News
     const client = window.TechItHelpers?.getClient();
-    if (client) {
-      client
-        .from("news")
-        .select("*")
-        .eq("published", true)
-        .order("created_at", { ascending: false })
-        .limit(1)
-        .maybeSingle()
-        .then(({ data, error }) => {
+    const checkLiveAndNews = async () => {
+      let liveHandled = false;
+
+      if (client) {
+        try {
+          const { data: liveData } = await client
+            .from("live_status")
+            .select("*")
+            .eq("id", "main")
+            .maybeSingle();
+
+          if (liveData && liveData.is_live && liveData.stream_url) {
+            activateLiveCard({
+              platform: liveData.platform || "youtube",
+              title: liveData.title,
+              streamUrl: liveData.stream_url,
+              thumbnailUrl: liveData.thumbnail_url
+            });
+            liveHandled = true;
+          }
+        } catch {
+          // Ignore if live_status table not created yet
+        }
+      }
+
+      // Optional automatic YouTube Data API v3 live check
+      const ytKey = window.TECHIT_CONFIG?.YOUTUBE_API_KEY;
+      const ytChan = window.TECHIT_CONFIG?.YOUTUBE_CHANNEL_ID;
+      if (!liveHandled && ytKey && ytChan) {
+        try {
+          const ytRes = await fetch(
+            `https://www.googleapis.com/youtube/v3/search?part=snippet&channelId=${encodeURIComponent(ytChan)}&eventType=live&type=video&key=${encodeURIComponent(ytKey)}`
+          );
+          if (ytRes.ok) {
+            const ytJson = await ytRes.json();
+            const item = ytJson.items?.[0];
+            if (item?.id?.videoId) {
+              activateLiveCard({
+                platform: "youtube",
+                title: item.snippet?.title || "Tech It ISII Live on YouTube",
+                streamUrl: `https://www.youtube.com/watch?v=${item.id.videoId}`,
+                thumbnailUrl: item.snippet?.thumbnails?.high?.url || ""
+              });
+              liveHandled = true;
+            }
+          }
+        } catch {
+          // Ignore YT API errors
+        }
+      }
+
+      if (!liveHandled && client) {
+        try {
+          const { data, error } = await client
+            .from("news")
+            .select("*")
+            .eq("published", true)
+            .order("created_at", { ascending: false })
+            .limit(1)
+            .maybeSingle();
+
           if (error || !data) return;
 
           const badgeEl = document.getElementById("latestNewsBadge");
@@ -324,11 +415,13 @@ document.addEventListener("DOMContentLoaded", () => {
 
           latestSocialUrl = data.social_url || "";
           socialRendered = false;
-        })
-        .catch(() => {
+        } catch {
           // Fallback to static hero news if offline
-        });
-    }
+        }
+      }
+    };
+
+    checkLiveAndNews();
   }
 
   // 8. CONTACT FORM

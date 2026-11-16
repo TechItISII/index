@@ -138,6 +138,7 @@
         <div class="admin-tabs">
           <button type="button" class="roster-tab active" data-admin-tab="editor">CREATE / EDIT NEWS</button>
           <button type="button" class="roster-tab" data-admin-tab="posts">ALL POSTS</button>
+          <button type="button" class="roster-tab" data-admin-tab="live">🔴 LIVE STREAM</button>
           <button type="button" class="roster-tab" data-admin-tab="history" data-admin-only style="display:none;">AUDIT HISTORY</button>
           <button type="button" class="roster-tab" data-admin-tab="console" data-admin-only style="display:none;">ADMIN CONSOLE</button>
           <button type="button" class="roster-tab" data-admin-tab="profile">PROFILE &amp; 2FA</button>
@@ -207,7 +208,49 @@
           <div id="adminPostsList" class="admin-list"></div>
         </div>
 
-        <!-- TAB 3: AUDIT HISTORY -->
+        <!-- TAB 3: LIVE STREAM -->
+        <div class="admin-panel" id="tab-live" style="display:none;">
+          <div class="admin-security-card">
+            <h3>Live Broadcast Override (YouTube / Instagram)</h3>
+            <p class="admin-sub">When active, the Hero card on the Home page switches into a special <strong>● LIVE NOW</strong> broadcast preview that links directly to YouTube or Instagram.</p>
+            <form id="liveStatusForm" class="admin-editor-form">
+              <div class="admin-grid-2">
+                <div class="admin-field">
+                  <label for="livePlatform">Platform</label>
+                  <select id="livePlatform" class="admin-select">
+                    <option value="youtube">YouTube Live</option>
+                    <option value="instagram">Instagram Live</option>
+                  </select>
+                </div>
+                <div class="admin-field admin-checkbox-wrap">
+                  <label class="admin-checkbox">
+                    <input type="checkbox" id="liveIsActive" />
+                    <span>LIVE NOW (Show Live Broadcast on Home)</span>
+                  </label>
+                </div>
+              </div>
+              <div class="admin-field">
+                <label for="liveTitle">Stream Title</label>
+                <input type="text" id="liveTitle" required placeholder="e.g. FTC BIOBUZZ Match Stream — Piacenza" />
+              </div>
+              <div class="admin-grid-2">
+                <div class="admin-field">
+                  <label for="liveStreamUrl">Stream URL (YouTube or Instagram)</label>
+                  <input type="url" id="liveStreamUrl" required placeholder="https://www.youtube.com/@TechItISII/live" />
+                </div>
+                <div class="admin-field">
+                  <label for="liveThumbnailUrl">Custom Thumbnail URL (optional — auto for YouTube)</label>
+                  <input type="url" id="liveThumbnailUrl" placeholder="Leave empty for automatic YouTube preview" />
+                </div>
+              </div>
+              <div class="admin-form-actions">
+                <button type="submit" class="btn btn-primary">Save Live Status →</button>
+              </div>
+            </form>
+          </div>
+        </div>
+
+        <!-- TAB 4: AUDIT HISTORY -->
         <div class="admin-panel" id="tab-history" style="display:none;">
           <div class="audit-legend">
             <span class="audit-pill is-create">CREATED</span>

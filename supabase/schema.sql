@@ -426,3 +426,36 @@ select
   true,
   'Tech It ISII'
 where not exists (select 1 from public.news);
+
+-- 9. LIVE STREAM STATUS TABLE (YouTube / Instagram Live override for Hero card)
+create table if not exists public.live_status (
+  id text primary key default 'main',
+  is_live boolean not null default false,
+  platform text not null default 'youtube' check (platform in ('youtube', 'instagram')),
+  title text not null default 'Tech It ISII Live Stream',
+  stream_url text not null default 'https://www.youtube.com/@TechItISII/live',
+  thumbnail_url text,
+  updated_by text,
+  updated_at timestamptz not null default now()
+);
+
+alter table public.live_status enable row level security;
+
+drop policy if exists "Public can read live status" on public.live_status;
+create policy "Public can read live status"
+  on public.live_status
+  for select
+  to public
+  using (true);
+
+drop policy if exists "Authenticated can manage live status" on public.live_status;
+create policy "Authenticated can manage live status"
+  on public.live_status
+  for all
+  to authenticated
+  using (true)
+  with check (true);
+
+insert into public.live_status (id, is_live, platform, title, stream_url)
+values ('main', false, 'youtube', 'Tech It ISII Live Stream', 'https://www.youtube.com/@TechItISII/live')
+on conflict (id) do nothing;
