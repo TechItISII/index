@@ -1,50 +1,55 @@
 document.addEventListener("DOMContentLoaded", () => {
 
-  // 1. CURSORE PERSONALIZZATO — versione fluida senza setTimeout
+  // 1. CUSTOM CURSOR (desktop fine pointer)
   const cursorDot = document.getElementById("cursorDot");
   const cursorRing = document.getElementById("cursorRing");
 
-  if (window.matchMedia("(pointer: fine)").matches) {
-    let mouseX = 0, mouseY = 0;
-    let ringX = 0, ringY = 0;
-    let animFrame;
+  if (cursorDot && cursorRing && window.matchMedia("(pointer: fine)").matches) {
+    let mouseX = -100, mouseY = -100;
+    let ringX = -100, ringY = -100;
+    let hasMoved = false;
 
     window.addEventListener("mousemove", (e) => {
       mouseX = e.clientX;
       mouseY = e.clientY;
-      // Dot segue istantaneamente
-      cursorDot.style.transform = `translate(${mouseX}px, ${mouseY}px)`;
+      if (!hasMoved) {
+        ringX = mouseX;
+        ringY = mouseY;
+        hasMoved = true;
+        cursorDot.style.opacity = "1";
+        cursorRing.style.opacity = "1";
+      }
+      cursorDot.style.transform = `translate3d(${mouseX}px, ${mouseY}px, 0) translate(-50%, -50%)`;
     });
 
-    // Ring usa lerp in requestAnimationFrame — mai più inchiodato
     function animateCursor() {
-      const ease = 0.12;
+      const ease = 0.18;
       ringX += (mouseX - ringX) * ease;
       ringY += (mouseY - ringY) * ease;
-      cursorRing.style.transform = `translate(${ringX}px, ${ringY}px)`;
-      animFrame = requestAnimationFrame(animateCursor);
+      cursorRing.style.transform = `translate3d(${ringX}px, ${ringY}px, 0) translate(-50%, -50%)`;
+      requestAnimationFrame(animateCursor);
     }
     animateCursor();
 
-    // Cursore nascosto quando esce dalla finestra
     document.addEventListener("mouseleave", () => {
       cursorDot.style.opacity = "0";
       cursorRing.style.opacity = "0";
     });
     document.addEventListener("mouseenter", () => {
-      cursorDot.style.opacity = "1";
-      cursorRing.style.opacity = "1";
+      if (hasMoved) {
+        cursorDot.style.opacity = "1";
+        cursorRing.style.opacity = "1";
+      }
     });
 
-    // Effetto hover
-    const interactables = document.querySelectorAll("a, button, input, textarea, .about-card, .member-card");
+    const interactables = document.querySelectorAll("a, button, input, textarea, .about-card, .member-card, .esports-crest-frame, .hero-number");
     interactables.forEach(el => {
       el.addEventListener("mouseenter", () => document.body.classList.add("cursor-hover"));
       el.addEventListener("mouseleave", () => document.body.classList.remove("cursor-hover"));
     });
   }
 
-  // 2. NAVBAR E MENU MOBILE
+  // 2. NAVBAR & MOBILE MENU
   const navbar = document.getElementById("navbar");
   const navToggle = document.getElementById("navToggle");
   const navLinks = document.querySelector(".nav-links");
@@ -53,61 +58,57 @@ document.addEventListener("DOMContentLoaded", () => {
     navbar.classList.toggle("scrolled", window.scrollY > 50);
   }, { passive: true });
 
-  navToggle.addEventListener("click", () => {
-    const isOpen = navLinks.classList.toggle("active");
+  const setMenuState = (isOpen) => {
+    navLinks.classList.toggle("active", isOpen);
     navToggle.classList.toggle("active", isOpen);
-    // Blocca scroll body quando menu è aperto su mobile
+    navToggle.setAttribute("aria-expanded", String(isOpen));
     document.body.style.overflow = isOpen ? "hidden" : "";
-  });
+  };
 
-  // Chiudi menu al click di un link
-  document.querySelectorAll(".nav-link").forEach(link => {
-    link.addEventListener("click", () => {
-      navLinks.classList.remove("active");
-      navToggle.classList.remove("active");
-      document.body.style.overflow = "";
+  if (navToggle && navLinks) {
+    navToggle.addEventListener("click", () => {
+      setMenuState(!navLinks.classList.contains("active"));
     });
-  });
 
-  // Chiudi menu cliccando fuori
-  document.addEventListener("click", (e) => {
-    if (navLinks.classList.contains("active") &&
-        !navLinks.contains(e.target) &&
-        !navToggle.contains(e.target)) {
-      navLinks.classList.remove("active");
-      navToggle.classList.remove("active");
-      document.body.style.overflow = "";
-    }
-  });
+    document.querySelectorAll(".nav-link").forEach(link => {
+      link.addEventListener("click", () => setMenuState(false));
+    });
 
-  // 3. ANIMAZIONI ON SCROLL
-  const observerOptions = { threshold: 0.1, rootMargin: "0px 0px -50px 0px" };
+    document.addEventListener("click", (e) => {
+      if (navLinks.classList.contains("active") &&
+          !navLinks.contains(e.target) &&
+          !navToggle.contains(e.target)) {
+        setMenuState(false);
+      }
+    });
+  }
 
+  // 3. SCROLL REVEAL ANIMATIONS
   const observer = new IntersectionObserver((entries) => {
     entries.forEach(entry => {
       if (entry.isIntersecting) {
-        if (entry.target.style.getPropertyValue('--delay')) {
-          entry.target.style.transitionDelay = entry.target.style.getPropertyValue('--delay');
+        const delay = entry.target.style.getPropertyValue('--delay');
+        if (delay) {
+          entry.target.style.transitionDelay = delay;
         }
         entry.target.classList.add("visible");
         observer.unobserve(entry.target);
       }
     });
-  }, observerOptions);
+  }, { threshold: 0.1, rootMargin: "0px 0px -40px 0px" });
 
   document.querySelectorAll(".animate-in, .about-card, .member-card, .timeline-item").forEach(el => {
     el.classList.add("animate-in");
     observer.observe(el);
   });
 
-  // 4. ANIMAZIONE CONTATORI
+  // 4. COUNTER ANIMATION
   const statsObserver = new IntersectionObserver((entries) => {
     entries.forEach(entry => {
       if (entry.isIntersecting) {
         const target = +entry.target.getAttribute("data-target");
         let count = 0;
-        const speed = 200;
-        const inc = target / speed;
+        const inc = Math.max(target / 60, 0.1);
 
         const updateCount = () => {
           count += inc;
@@ -126,26 +127,211 @@ document.addEventListener("DOMContentLoaded", () => {
 
   document.querySelectorAll(".stat-num").forEach(stat => statsObserver.observe(stat));
 
-  // 5. TILT 3D — solo desktop
+  // 5. 3D TILT (desktop)
   if (window.matchMedia("(pointer: fine)").matches) {
     document.querySelectorAll("[data-tilt]").forEach(el => {
       el.addEventListener("mousemove", (e) => {
         const rect = el.getBoundingClientRect();
         const x = e.clientX - rect.left;
         const y = e.clientY - rect.top;
-        const rotateX = ((y - rect.height / 2) / rect.height) * -10;
-        const rotateY = ((x - rect.width / 2) / rect.width) * 10;
-        el.style.transform = `perspective(1000px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) scale3d(1.02, 1.02, 1.02)`;
+        const rotateX = ((y - rect.height / 2) / rect.height) * -8;
+        const rotateY = ((x - rect.width / 2) / rect.width) * 8;
+        el.style.transform = `perspective(1000px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) scale3d(1.015, 1.015, 1.015)`;
         el.style.transition = "none";
       });
       el.addEventListener("mouseleave", () => {
         el.style.transform = `perspective(1000px) rotateX(0) rotateY(0) scale3d(1, 1, 1)`;
-        el.style.transition = "transform 0.5s ease";
+        el.style.transition = "transform 0.45s ease";
       });
     });
   }
 
-  // 6. FORM CONTATTI
+  // 6. ROSTER FILTER TABS
+  const rosterTabs = document.querySelectorAll(".roster-tab");
+  const rosterGroups = document.querySelectorAll(".roster-group");
+
+  rosterTabs.forEach(tab => {
+    tab.addEventListener("click", () => {
+      const filter = tab.getAttribute("data-filter");
+
+      rosterTabs.forEach(t => {
+        t.classList.remove("active");
+        t.setAttribute("aria-selected", "false");
+      });
+      tab.classList.add("active");
+      tab.setAttribute("aria-selected", "true");
+
+      rosterGroups.forEach(group => {
+        const groupName = group.getAttribute("data-group");
+        const shouldShow = filter === "all" || filter === groupName;
+        group.classList.toggle("is-hidden", !shouldShow);
+      });
+    });
+  });
+
+  // 7. NAVBAR AUTH STATUS (tutte le pagine)
+  const navAuthSlot = document.getElementById("navAuthSlot");
+  const renderNavAuth = async () => {
+    const client = window.TechItHelpers?.getClient();
+    if (!navAuthSlot || !client) return;
+
+    const { data: { session } } = await client.auth.getSession();
+    if (!session || !session.user) {
+      navAuthSlot.innerHTML = `<a href="admin.html" class="nav-login-btn">LOGIN</a>`;
+      return;
+    }
+
+    const profile = await window.TechItHelpers.getUserProfile(client, session.user);
+    const isAdmin = profile.role === "admin";
+    const roleLabel = isAdmin ? "TECH IT ISII ADMIN" : "TECH IT ISII INSIDER";
+    const roleBadgeClass = isAdmin ? "is-admin-badge" : "is-insider-badge";
+    const primaryLinks = isAdmin
+      ? `<a href="admin.html#console" class="nav-dropdown-link">Admin Console</a>
+         <a href="admin.html#editor" class="nav-dropdown-link">Create / Manage Posts</a>`
+      : `<a href="admin.html#editor" class="nav-dropdown-link">Create / Manage Posts</a>`;
+
+    const displayName = window.TechItHelpers.escapeHtml(
+      window.TechItHelpers.getDisplayName(session.user, profile)
+    );
+    const email = window.TechItHelpers.escapeHtml(session.user.email || "");
+
+    navAuthSlot.innerHTML = `
+      <div class="nav-user-menu" id="navUserMenu">
+        <button type="button" class="nav-user-trigger" id="navUserTrigger" aria-expanded="false" aria-haspopup="true">
+          <span class="nav-user-dot"></span>
+          <span class="nav-user-name">${displayName}</span>
+          <span class="nav-user-caret">▾</span>
+        </button>
+        <div class="nav-user-dropdown" id="navUserDropdown">
+          <div class="nav-user-dropdown-head">
+            <span class="author-insider-badge ${roleBadgeClass}">${roleLabel}</span>
+            <strong>${displayName}</strong>
+            <small>${email}</small>
+          </div>
+          ${primaryLinks}
+          <a href="admin.html#profile" class="nav-dropdown-link">Account &amp; 2FA Settings</a>
+          <button type="button" class="nav-dropdown-link is-logout" id="navLogoutBtn">Disconnect</button>
+        </div>
+      </div>
+    `;
+
+    const trigger = document.getElementById("navUserTrigger");
+    const menu = document.getElementById("navUserMenu");
+    const logoutAction = document.getElementById("navLogoutBtn");
+
+    trigger.addEventListener("click", (e) => {
+      e.stopPropagation();
+      const open = menu.classList.toggle("is-open");
+      trigger.setAttribute("aria-expanded", String(open));
+    });
+
+    document.addEventListener("click", (e) => {
+      if (!menu.contains(e.target)) {
+        menu.classList.remove("is-open");
+        trigger.setAttribute("aria-expanded", "false");
+      }
+    });
+
+    logoutAction.addEventListener("click", async () => {
+      await client.auth.signOut();
+      if (window.location.pathname.endsWith("admin.html")) {
+        window.location.reload();
+      } else {
+        await renderNavAuth();
+      }
+    });
+  };
+  renderNavAuth();
+  window.refreshTechItNavAuth = renderNavAuth;
+
+  // 8. LATEST NEWS MODAL (comparsa e scomparsa) + AUTO-SYNC DA SUPABASE
+  const newsCardTrigger = document.getElementById("newsCardTrigger");
+  const newsModal = document.getElementById("newsModal");
+  const newsModalClose = document.getElementById("newsModalClose");
+  const newsModalBackdrop = document.getElementById("newsModalBackdrop");
+
+  if (newsCardTrigger && newsModal) {
+    let latestSocialUrl = "";
+    let socialRendered = false;
+
+    const setNewsModalOpen = (open) => {
+      newsModal.classList.toggle("is-open", open);
+      newsModal.setAttribute("aria-hidden", String(!open));
+      newsCardTrigger.setAttribute("aria-expanded", String(open));
+      document.body.style.overflow = open ? "hidden" : "";
+
+      if (open && latestSocialUrl && !socialRendered && window.TechItHelpers) {
+        const socialContainer = document.getElementById("newsModalSocial");
+        window.TechItHelpers.renderSocialEmbed(socialContainer, latestSocialUrl);
+        socialRendered = true;
+      }
+    };
+
+    newsCardTrigger.addEventListener("click", () => {
+      setNewsModalOpen(!newsModal.classList.contains("is-open"));
+    });
+
+    if (newsModalClose) {
+      newsModalClose.addEventListener("click", () => setNewsModalOpen(false));
+    }
+    if (newsModalBackdrop) {
+      newsModalBackdrop.addEventListener("click", () => setNewsModalOpen(false));
+    }
+    document.addEventListener("keydown", (e) => {
+      if (e.key === "Escape" && newsModal.classList.contains("is-open")) {
+        setNewsModalOpen(false);
+      }
+    });
+
+    // Auto-load latest published news from Supabase
+    const client = window.TechItHelpers?.getClient();
+    if (client) {
+      client
+        .from("news")
+        .select("*")
+        .eq("published", true)
+        .order("created_at", { ascending: false })
+        .limit(1)
+        .maybeSingle()
+        .then(({ data, error }) => {
+          if (error || !data) return;
+
+          const badgeEl = document.getElementById("latestNewsBadge");
+          const imgEl = document.getElementById("latestNewsImg");
+          const titleEl = document.getElementById("latestNewsTitle");
+          const modalImgEl = document.getElementById("newsModalImg");
+          const modalDateEl = document.getElementById("newsModalDate");
+          const modalTitleEl = document.getElementById("newsModalTitle");
+          const modalAuthorEl = document.getElementById("newsModalAuthor");
+          const modalTextEl = document.getElementById("newsModalText");
+
+          const imgSrc = data.image_url || "IMG/logo-esports-banner.jpg";
+          if (badgeEl) badgeEl.textContent = data.tag || "TEAM NEWS";
+          if (imgEl) imgEl.src = imgSrc;
+          if (titleEl) titleEl.textContent = data.title;
+          if (modalImgEl) modalImgEl.src = imgSrc;
+          if (modalDateEl) {
+            const dateStr = window.TechItHelpers.formatDate(data.created_at);
+            modalDateEl.textContent = `${dateStr} · ${data.tag || "TEAM NEWS"}`;
+          }
+          if (modalTitleEl) modalTitleEl.textContent = data.title;
+          if (modalAuthorEl) {
+            modalAuthorEl.innerHTML = window.TechItHelpers.renderAuthorByline(data.author_email);
+          }
+          if (modalTextEl) {
+            modalTextEl.innerHTML = window.TechItHelpers.formatParagraphs(data.content);
+          }
+
+          latestSocialUrl = data.social_url || "";
+          socialRendered = false;
+        })
+        .catch(() => {
+          // Fallback to static hero news if offline
+        });
+    }
+  }
+
+  // 8. CONTACT FORM
   const contactForm = document.getElementById("contactForm");
   if (contactForm) {
     const submitBtn = contactForm.querySelector('button[type="submit"]');
@@ -160,28 +346,28 @@ document.addEventListener("DOMContentLoaded", () => {
         submitBtn.classList.remove("is-loading");
         contactForm.reset();
         successMsg.style.display = "block";
-        setTimeout(() => { successMsg.style.display = "none"; }, 5000);
-      }, 1500);
+        setTimeout(() => { successMsg.style.display = "none"; }, 6000);
+      }, 900);
+    });
+  }
+
+  // 8. EASTER EGG
+  const EasterEggTrigger = document.getElementById('EasterEgg-trigger');
+  if (EasterEggTrigger) {
+    let isActive = true;
+    EasterEggTrigger.addEventListener('click', () => {
+      if (isActive) {
+        EasterEggTrigger.textContent = 'No coffee anymore =,)';
+        EasterEggTrigger.classList.add('EasterEgg-active');
+      } else {
+        EasterEggTrigger.textContent = 'plz give us coffee';
+        EasterEggTrigger.classList.remove('EasterEgg-active');
+      }
+      EasterEggTrigger.style.transform = 'scale(0.85)';
+      setTimeout(() => {
+        EasterEggTrigger.style.transform = isActive ? 'scale(1.25) rotate(8deg)' : 'scale(1)';
+      }, 50);
+      isActive = !isActive;
     });
   }
 });
-
-// Easter egg
-const EasterEggTrigger = document.getElementById('EasterEgg-trigger');
-if (EasterEggTrigger) {
-  let isActive = true;
-  EasterEggTrigger.addEventListener('click', () => {
-    if (isActive) {
-      EasterEggTrigger.textContent = 'No coffee anymore =,)';
-      EasterEggTrigger.classList.add('EasterEgg-active');
-    } else {
-      EasterEggTrigger.textContent = 'plz give us coffee';
-      EasterEggTrigger.classList.remove('EasterEgg-active');
-    }
-    EasterEggTrigger.style.transform = 'scale(0.8)';
-    setTimeout(() => {
-      EasterEggTrigger.style.transform = isActive ? 'scale(1.3) rotate(10deg)' : 'scale(1)';
-    }, 50);
-    isActive = !isActive;
-  });
-}

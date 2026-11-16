@@ -1,0 +1,374 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Admin Console | Tech It ISII #25074</title>
+  <meta name="robots" content="noindex, nofollow" />
+  <link rel="icon" type="image/png" href="IMG/logo-emblem.png" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Orbitron:wght@600;700;800;900&family=Rajdhani:wght@500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+  <div class="cursor-dot" id="cursorDot"></div>
+  <div class="cursor-ring" id="cursorRing"></div>
+  <div class="noise-overlay"></div>
+
+  <!-- NAV -->
+  <nav class="navbar scrolled" id="navbar">
+    <a href="index.html" class="nav-logo" aria-label="Tech It ISII Home">
+      <img src="IMG/logo-emblem.png" alt="Tech It ISII Cyber Wolf Logo" class="nav-emblem" />
+      <div class="nav-brand-text">
+        <span class="logo-text">TECH IT <span class="logo-accent">ISII</span></span>
+        <span class="logo-sub">#25074 · ADMIN CONSOLE</span>
+      </div>
+    </a>
+
+    <ul class="nav-links">
+      <li><a href="index.html" class="nav-link" data-index="01">HOME</a></li>
+      <li><a href="blog.html" class="nav-link" data-index="02">BLOG</a></li>
+      <li class="nav-auth-item" id="navAuthSlot">
+        <a href="admin.html" class="nav-login-btn">LOGIN</a>
+      </li>
+    </ul>
+
+    <button class="nav-toggle" id="navToggle" aria-label="Menu" aria-expanded="false">
+      <span></span><span></span><span></span>
+    </button>
+  </nav>
+
+  <main class="admin-page">
+    <div class="container">
+
+      <!-- CONFIG WARNING -->
+      <div class="admin-alert" id="configAlert" style="display:none;">
+        ⚠️ <strong>Supabase non configurato.</strong> Inserisci <code>SUPABASE_URL</code> e <code>SUPABASE_ANON_KEY</code> in <code>supabase-config.js</code> ed esegui <code>supabase/schema.sql</code> nel tuo progetto Supabase.
+      </div>
+
+      <!-- LOGIN PANEL -->
+      <section class="admin-auth-box" id="authSection">
+        <div class="hud-corner tl"></div>
+        <div class="hud-corner tr"></div>
+        <div class="hud-corner bl"></div>
+        <div class="hud-corner br"></div>
+
+        <div class="section-label">// RESTRICTED ACCESS</div>
+        <h1 class="admin-title">Admin <em>Login</em></h1>
+        <p class="admin-sub">Sign in with your authorized Tech It ISII account. 2FA (Authenticator App) is supported and recommended.</p>
+
+        <form id="loginForm" class="admin-form">
+          <div class="admin-field">
+            <label for="loginEmail">Admin Email</label>
+            <input type="email" id="loginEmail" required autocomplete="email" placeholder="team@isii.it" />
+          </div>
+          <div class="admin-field">
+            <label for="loginPassword">Password</label>
+            <input type="password" id="loginPassword" required autocomplete="current-password" placeholder="••••••••••••" />
+          </div>
+          <button type="submit" class="btn btn-primary btn-full">Authenticate →</button>
+        </form>
+
+        <!-- 2FA TOTP CHALLENGE (EXISTING 2FA) -->
+        <form id="mfaForm" class="admin-form" style="display:none;">
+          <div class="admin-mfa-badge">🔒 2FA VERIFICATION REQUIRED</div>
+          <div class="admin-field">
+            <label for="mfaCode">6-Digit Authenticator Code</label>
+            <input type="text" id="mfaCode" class="mfa-code-input" inputmode="numeric" pattern="[0-9]{6}" maxlength="6" required placeholder="000000" autocomplete="one-time-code" />
+          </div>
+          <button type="submit" class="btn btn-primary btn-full">Verify 2FA Code →</button>
+          <button type="button" id="mfaCancelBtn" class="btn btn-ghost btn-full">Back to Login</button>
+        </form>
+
+        <!-- MANDATORY FIRST-LOGIN PASSWORD CHANGE GATE -->
+        <form id="forcePasswordForm" class="admin-form" style="display:none;">
+          <div class="admin-mfa-badge">🔑 FIRST LOGIN · CHANGE PASSWORD REQUIRED</div>
+          <p class="admin-sub" style="margin-bottom:0.25rem;">
+            For security, replace the temporary password created by the Admin with your own personal password before setting up 2FA.
+          </p>
+          <div class="admin-field">
+            <label for="forceNewPassword">New Password (min. 8 chars)</label>
+            <input type="password" id="forceNewPassword" minlength="8" required placeholder="••••••••••••" autocomplete="new-password" />
+          </div>
+          <div class="admin-field">
+            <label for="forceConfirmPassword">Confirm New Password</label>
+            <input type="password" id="forceConfirmPassword" minlength="8" required placeholder="••••••••••••" autocomplete="new-password" />
+          </div>
+          <button type="submit" class="btn btn-primary btn-full">Save Password &amp; Continue to 2FA →</button>
+          <button type="button" id="forcePassCancelBtn" class="btn btn-ghost btn-full">Cancel &amp; Sign Out</button>
+        </form>
+
+        <!-- MANDATORY FIRST-LOGIN 2FA SETUP GATE -->
+        <form id="mfaSetupForm" class="admin-form" style="display:none;">
+          <div class="admin-mfa-badge">🛡️ FIRST LOGIN · MANDATORY 2FA SETUP</div>
+          <p class="admin-sub" style="margin-bottom:0.25rem;">
+            To protect the team console, you must link an Authenticator app (Google Authenticator, Authy, or 1Password) before continuing.
+          </p>
+          <div class="mfa-setup-card">
+            <span class="mfa-step-label">1. SCAN QR CODE</span>
+            <div id="mfaGateQrContainer" class="mfa-qr-box"></div>
+            <div class="mfa-secret-wrap" id="mfaGateSecretWrap" style="display:none;">
+              <span>Or enter key manually:</span>
+              <code id="mfaGateSecret"></code>
+            </div>
+          </div>
+          <div class="admin-field">
+            <label for="mfaGateCode">2. Enter 6-Digit Code to Activate</label>
+            <input type="text" id="mfaGateCode" class="mfa-code-input" inputmode="numeric" pattern="[0-9]{6}" maxlength="6" required placeholder="000000" autocomplete="one-time-code" />
+          </div>
+          <button type="submit" class="btn btn-primary btn-full">Activate 2FA &amp; Enter →</button>
+          <button type="button" id="mfaGateCancelBtn" class="btn btn-ghost btn-full">Cancel &amp; Sign Out</button>
+        </form>
+
+        <div class="admin-feedback" id="authFeedback" style="display:none;"></div>
+      </section>
+
+      <!-- DASHBOARD -->
+      <section class="admin-dashboard" id="dashboardSection" style="display:none;">
+        <div class="admin-dash-header">
+          <div>
+            <div class="section-label" id="dashSectionLabel">// MISSION CONTROL · NEWS &amp; BLOG</div>
+            <h1 class="admin-title" id="dashTitle">Manage <em>Dispatches</em></h1>
+          </div>
+          <div class="admin-user-pill" id="adminUserPill">● AUTHENTICATED</div>
+        </div>
+
+        <div class="admin-tabs">
+          <button type="button" class="roster-tab active" data-admin-tab="editor">CREATE / EDIT NEWS</button>
+          <button type="button" class="roster-tab" data-admin-tab="posts">ALL POSTS</button>
+          <button type="button" class="roster-tab" data-admin-tab="history" data-admin-only style="display:none;">AUDIT HISTORY</button>
+          <button type="button" class="roster-tab" data-admin-tab="console" data-admin-only style="display:none;">ADMIN CONSOLE</button>
+          <button type="button" class="roster-tab" data-admin-tab="profile">PROFILE &amp; 2FA</button>
+        </div>
+
+        <div class="admin-feedback" id="dashFeedback" style="display:none;"></div>
+        <div class="admin-alert" id="roleDiagnosticAlert" style="display:none;"></div>
+
+        <!-- TAB 1: EDITOR -->
+        <div class="admin-panel" id="tab-editor">
+          <form id="newsForm" class="admin-editor-form">
+            <input type="hidden" id="newsId" />
+            <div class="admin-grid-2">
+              <div class="admin-field">
+                <label for="newsTitle">Title *</label>
+                <input type="text" id="newsTitle" required placeholder="e.g. BIOBUZZ Kickoff & Robot Reveal" />
+              </div>
+              <div class="admin-field">
+                <label for="newsTag">Badge / Tag *</label>
+                <input type="text" id="newsTag" required value="TEAM NEWS" placeholder="e.g. BIOBUZZ 2026–27" />
+              </div>
+            </div>
+
+            <div class="admin-field">
+              <label for="newsSummary">Short Summary *</label>
+              <input type="text" id="newsSummary" required placeholder="One-line summary shown in the blog card" />
+            </div>
+
+            <div class="admin-field">
+              <label for="newsContent">Full Article Content *</label>
+              <textarea id="newsContent" rows="7" required placeholder="Write the full news article here... Separate paragraphs with a blank line."></textarea>
+            </div>
+
+            <div class="admin-grid-2">
+              <div class="admin-field">
+                <label for="newsImageUrl">Cover Image URL (or upload below)</label>
+                <input type="text" id="newsImageUrl" placeholder="IMG/logo-esports-banner.jpg or https://..." />
+              </div>
+              <div class="admin-field">
+                <label for="newsImageFile">Upload Image to Supabase Storage</label>
+                <input type="file" id="newsImageFile" accept="image/*" />
+              </div>
+            </div>
+
+            <div class="admin-grid-2">
+              <div class="admin-field">
+                <label for="newsSocialUrl">Instagram or X (Twitter) Post URL (optional)</label>
+                <input type="url" id="newsSocialUrl" placeholder="https://www.instagram.com/p/... or https://x.com/..." />
+              </div>
+              <div class="admin-field admin-checkbox-wrap">
+                <label class="admin-checkbox">
+                  <input type="checkbox" id="newsPublished" checked />
+                  <span>Published (visible on Home &amp; Blog immediately)</span>
+                </label>
+              </div>
+            </div>
+
+            <div class="admin-form-actions">
+              <button type="submit" class="btn btn-primary" id="saveNewsBtn">Publish News →</button>
+              <button type="button" class="btn btn-ghost" id="resetNewsBtn" style="display:none;">Cancel Edit</button>
+            </div>
+          </form>
+        </div>
+
+        <!-- TAB 2: ALL POSTS -->
+        <div class="admin-panel" id="tab-posts" style="display:none;">
+          <div id="adminPostsList" class="admin-list"></div>
+        </div>
+
+        <!-- TAB 3: AUDIT HISTORY -->
+        <div class="admin-panel" id="tab-history" style="display:none;">
+          <div class="audit-legend">
+            <span class="audit-pill is-create">CREATED</span>
+            <span class="audit-pill is-update">UPDATED</span>
+            <span class="audit-pill is-delete">DELETED</span>
+            <span class="audit-legend-note">Every change is recorded automatically. Click <strong>Restore</strong> to recover a previous state.</span>
+          </div>
+          <div id="adminHistoryList" class="admin-list"></div>
+        </div>
+
+        <!-- TAB 4: ADMIN CONSOLE (ONLY ADMINS) -->
+        <div class="admin-panel" id="tab-console" style="display:none;">
+          <div class="console-stats-grid" id="consoleStatsGrid">
+            <div class="console-stat-card"><span id="statTotalNews">-</span><small>TOTAL POSTS</small></div>
+            <div class="console-stat-card"><span id="statPublishedNews">-</span><small>PUBLISHED</small></div>
+            <div class="console-stat-card"><span id="statTotalUsers">-</span><small>ACCOUNTS</small></div>
+            <div class="console-stat-card"><span id="statTotalHistory">-</span><small>AUDIT LOGS</small></div>
+          </div>
+
+          <div class="console-section">
+            <div class="console-section-head">
+              <div>
+                <h3>Create or Edit User Account</h3>
+                <p class="admin-sub" style="margin-bottom:0;">Create new Admin/Insider accounts or edit existing users directly from the Admin Console.</p>
+              </div>
+            </div>
+            <form id="userManageForm" class="admin-editor-form" autocomplete="off" style="margin-top:1.15rem;">
+              <input type="hidden" id="manageUserId" />
+              <div class="admin-grid-2">
+                <div class="admin-field">
+                  <label for="manageUserEmail">Email *</label>
+                  <input type="email" id="manageUserEmail" required autocomplete="off" placeholder="member@isii.it" />
+                </div>
+                <div class="admin-field">
+                  <label for="manageUserDisplayName">Display Name *</label>
+                  <input type="text" id="manageUserDisplayName" required autocomplete="off" placeholder="Es. Nome Cognome" />
+                </div>
+                <div class="admin-field">
+                  <label for="manageUserRole">Role *</label>
+                  <select id="manageUserRole" class="admin-select">
+                    <option value="insider">INSIDER (Posts only)</option>
+                    <option value="admin">ADMIN (Full console)</option>
+                  </select>
+                </div>
+                <div class="admin-field">
+                  <label for="manageUserPassword" id="manageUserPasswordLabel">Password * (min. 8 chars)</label>
+                  <input type="password" id="manageUserPassword" minlength="8" required autocomplete="new-password" data-lpignore="true" placeholder="••••••••••••" />
+                </div>
+              </div>
+              <div class="admin-form-actions">
+                <button type="submit" class="btn btn-primary" id="saveUserBtn">Create Account →</button>
+                <button type="button" class="btn btn-ghost" id="cancelEditUserBtn" style="display:none;">Cancel Edit</button>
+              </div>
+            </form>
+          </div>
+
+          <div class="console-section" style="margin-top:2rem;">
+            <div class="console-section-head">
+              <div>
+                <h3>Team Accounts &amp; Roles</h3>
+                <p class="admin-sub" style="margin-bottom:0;">Edit any user's name, password, or role (Admin / Insider), or delete accounts.</p>
+              </div>
+            </div>
+            <div id="adminUsersList" class="admin-list" style="margin-top:1rem;"></div>
+          </div>
+
+          <div class="console-section" style="margin-top:2rem;">
+            <div class="console-section-head">
+              <div>
+                <h3>Storage Media Manager (<code>news-media</code>)</h3>
+                <p class="admin-sub" style="margin-bottom:0;">Inspect, copy URLs, or delete uploaded images from Supabase Storage.</p>
+              </div>
+              <a href="https://supabase.com/dashboard/project/fxszsmtlhqsbpwcodbms/storage/buckets/news-media" target="_blank" rel="noopener noreferrer" class="btn btn-ghost btn-sm">Open Storage ↗</a>
+            </div>
+            <div id="adminMediaList" class="media-grid" style="margin-top:1rem;"></div>
+          </div>
+        </div>
+
+        <!-- TAB 5: PROFILE & 2FA -->
+        <div class="admin-panel" id="tab-profile" style="display:none;">
+          <div class="profile-grid">
+            <div class="admin-security-card">
+              <h3>Account Profile</h3>
+              <p class="admin-sub">Your display name appears in the navbar across all pages and as the author of new posts.</p>
+              <form id="profileForm" class="admin-form">
+                <div class="admin-field">
+                  <label for="profileDisplayName">Display Name (Author Name)</label>
+                  <input type="text" id="profileDisplayName" required placeholder="e.g. Alessandro Imberti" />
+                </div>
+                <div class="admin-field">
+                  <label for="profileNewPassword">New Password (leave blank to keep current)</label>
+                  <input type="password" id="profileNewPassword" minlength="8" autocomplete="new-password" data-lpignore="true" placeholder="Min. 8 characters" />
+                </div>
+                <div class="admin-form-actions">
+                  <button type="submit" class="btn btn-primary">Save Account Settings →</button>
+                  <button type="button" id="profileLogoutBtn" class="btn btn-ghost">Sign Out</button>
+                </div>
+              </form>
+            </div>
+
+            <div class="admin-security-card">
+              <h3>Two-Factor Authentication (TOTP)</h3>
+              <p class="admin-sub">2FA is mandatory for all Tech It ISII accounts via Google Authenticator, Authy, or 1Password.</p>
+              <div id="mfaStatusText" class="admin-mfa-status">Checking 2FA status...</div>
+              <div class="mfa-profile-actions">
+                <button type="button" class="btn btn-primary" id="enrollMfaBtn" style="display:none;">Enable 2FA (Generate QR) →</button>
+                <button type="button" class="btn btn-ghost" id="reconfigureMfaBtn" style="display:none;">Reset / Change Authenticator</button>
+              </div>
+              <div id="mfaEnrollBox" class="mfa-enroll-box" style="display:none;">
+                <div class="mfa-setup-card">
+                  <span class="mfa-step-label">1. SCAN QR CODE</span>
+                  <div id="mfaQrContainer" class="mfa-qr-box"></div>
+                  <div class="mfa-secret-wrap" id="mfaProfileSecretWrap" style="display:none;">
+                    <span>Or enter key manually:</span>
+                    <code id="mfaProfileSecret"></code>
+                  </div>
+                </div>
+                <div class="admin-field">
+                  <label for="mfaEnrollCode">2. Enter 6-Digit Code to Confirm</label>
+                  <input type="text" id="mfaEnrollCode" class="mfa-code-input" inputmode="numeric" maxlength="6" placeholder="000000" />
+                </div>
+                <button type="button" class="btn btn-primary btn-full" id="verifyEnrollBtn">Confirm &amp; Activate 2FA →</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </section>
+    </div>
+  </main>
+
+  <!-- STEP-UP 2FA CONFIRMATION MODAL (FOR ACCOUNT MANAGEMENT) -->
+  <div class="news-modal" id="admin2faModal" role="dialog" aria-modal="true" aria-labelledby="admin2faTitle" aria-hidden="true">
+    <div class="news-modal-backdrop" id="admin2faBackdrop"></div>
+    <div class="news-modal-dialog" style="max-width:440px;">
+      <div class="hud-corner tl"></div>
+      <div class="hud-corner tr"></div>
+      <div class="hud-corner bl"></div>
+      <div class="hud-corner br"></div>
+      <div class="news-modal-topbar">
+        <span class="news-modal-kicker">// SECURITY CHECK · 2FA</span>
+        <button type="button" class="news-modal-close" id="admin2faClose" aria-label="Close">✕</button>
+      </div>
+      <form id="admin2faForm" class="admin-form">
+        <h3 id="admin2faTitle" style="font-size:1.1rem;">Confirm Account Action</h3>
+        <p class="admin-sub" id="admin2faDesc" style="margin-bottom:0.25rem;">Enter a fresh 6-digit code from your Authenticator app to authorize this change.</p>
+        <div class="admin-field">
+          <label for="admin2faInput">6-Digit 2FA Code</label>
+          <input type="text" id="admin2faInput" class="mfa-code-input" inputmode="numeric" pattern="[0-9]{6}" maxlength="6" required placeholder="000000" autocomplete="one-time-code" />
+        </div>
+        <div class="admin-feedback" id="admin2faError" style="display:none;margin:0;"></div>
+        <div class="admin-form-actions">
+          <button type="submit" class="btn btn-primary btn-full">Verify &amp; Execute →</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="supabase-config.js"></script>
+  <script src="script.js"></script>
+  <script src="admin.js"></script>
+</body>
+</html>

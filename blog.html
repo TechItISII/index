@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Blog &amp; News | Tech It ISII #25074</title>
+  <meta name="description" content="Latest news, updates, and social dispatches from Tech It ISII #25074 — ISII Guglielmo Marconi, Piacenza." />
+  <link rel="icon" type="image/png" href="IMG/logo-emblem.png" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Orbitron:wght@600;700;800;900&family=Rajdhani:wght@500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+  <div class="cursor-dot" id="cursorDot"></div>
+  <div class="cursor-ring" id="cursorRing"></div>
+  <div class="noise-overlay"></div>
+
+  <!-- NAV -->
+  <nav class="navbar scrolled" id="navbar">
+    <a href="index.html" class="nav-logo" aria-label="Tech It ISII Home">
+      <img src="IMG/logo-emblem.png" alt="Tech It ISII Cyber Wolf Logo" class="nav-emblem" />
+      <div class="nav-brand-text">
+        <span class="logo-text">TECH IT <span class="logo-accent">ISII</span></span>
+        <span class="logo-sub">#25074 · PIACENZA</span>
+      </div>
+    </a>
+
+    <ul class="nav-links">
+      <li><a href="index.html#hero" class="nav-link" data-index="01">HOME</a></li>
+      <li><a href="index.html#about" class="nav-link" data-index="02">IDENTITY</a></li>
+      <li><a href="index.html#robot" class="nav-link" data-index="03">ROBOT</a></li>
+      <li><a href="index.html#team" class="nav-link" data-index="04">ROSTER</a></li>
+      <li><a href="index.html#stagioni" class="nav-link" data-index="05">SEASONS</a></li>
+      <li><a href="blog.html" class="nav-link active-nav" data-index="06">BLOG</a></li>
+      <li><a href="index.html#contatti" class="nav-link cta-nav" data-index="07">CONTACT</a></li>
+      <li class="nav-auth-item" id="navAuthSlot">
+        <a href="admin.html" class="nav-login-btn">LOGIN</a>
+      </li>
+    </ul>
+
+    <button class="nav-toggle" id="navToggle" aria-label="Menu" aria-expanded="false">
+      <span></span><span></span><span></span>
+    </button>
+  </nav>
+
+  <!-- BLOG HEADER -->
+  <main class="blog-page">
+    <section class="blog-hero">
+      <div class="container">
+        <div class="section-label">// TEAM DISPATCH · LIVE FEED</div>
+        <h1 class="section-title">Team <em>Blog</em> &amp; News</h1>
+        <p class="blog-subtitle">
+          Competition dispatches, robot engineering logs, and official announcements from Team #25074 in Piacenza.
+        </p>
+
+        <div class="blog-toolbar">
+          <div class="blog-filters" id="blogFilters">
+            <button type="button" class="roster-tab active" data-tag="ALL">ALL</button>
+          </div>
+          <div class="blog-search-wrap">
+            <input type="search" id="blogSearch" class="blog-search" placeholder="Search news..." aria-label="Search news" />
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="blog-list-section">
+      <div class="container">
+        <div class="blog-status-banner" id="blogStatusBanner" style="display:none;"></div>
+        <div class="blog-grid" id="blogGrid">
+          <!-- Populated dynamically by blog.js -->
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- ARTICLE MODAL -->
+  <div class="news-modal" id="blogModal" role="dialog" aria-modal="true" aria-labelledby="blogModalTitle" aria-hidden="true">
+    <div class="news-modal-backdrop" id="blogModalBackdrop"></div>
+    <div class="news-modal-dialog">
+      <div class="hud-corner tl"></div>
+      <div class="hud-corner tr"></div>
+      <div class="hud-corner bl"></div>
+      <div class="hud-corner br"></div>
+      <div class="news-modal-topbar">
+        <span class="news-modal-kicker" id="blogModalKicker">// TEAM DISPATCH</span>
+        <button type="button" class="news-modal-close" id="blogModalClose" aria-label="Close article">✕</button>
+      </div>
+      <div class="news-modal-body">
+        <div class="news-modal-media">
+          <img src="IMG/logo-esports-banner.jpg" alt="Article media" id="blogModalImg" />
+        </div>
+        <div class="news-modal-content">
+          <span class="news-modal-date" id="blogModalDate"></span>
+          <h3 id="blogModalTitle"></h3>
+          <div class="post-author-byline" id="blogModalAuthor"></div>
+          <div id="blogModalText"></div>
+          <div id="blogModalSocial" class="news-modal-social" style="display:none;"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- FOOTER -->
+  <footer class="footer">
+    <div class="container">
+      <div class="footer-top">
+        <div class="footer-brand">
+          <div class="footer-logo-line">
+            <span class="logo-text">TECH IT <span class="logo-accent">ISII</span></span>
+            <span class="logo-num footer-number"><span class="num-green">25</span><span class="num-white">0</span><span class="num-red">74</span></span>
+          </div>
+          <p>FIRST Tech Challenge · ISII "Guglielmo Marconi" · Piacenza, Italy</p>
+        </div>
+        <div class="footer-links">
+          <a href="index.html">Home</a>
+          <a href="admin.html">Admin 🔒</a>
+          <a href="https://www.firstinspires.org" target="_blank" rel="noopener noreferrer">FIRST Inspires ↗</a>
+          <a href="https://github.com/techitisii" target="_blank" rel="noopener noreferrer">GitHub ↗</a>
+        </div>
+      </div>
+      <div class="footer-bottom">
+        <span>© 2026–27 Tech It ISII #25074 · Piacenza</span>
+        <span class="footer-ftc">Built for FIRST Tech Challenge</span>
+      </div>
+    </div>
+  </footer>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="supabase-config.js"></script>
+  <script src="script.js"></script>
+  <script src="blog.js"></script>
+</body>
+</html>
