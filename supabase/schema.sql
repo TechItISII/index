@@ -185,7 +185,10 @@ begin
   where id = target_user_id;
 
   update auth.users
-  set raw_user_meta_data = coalesce(raw_user_meta_data, '{}'::jsonb) || jsonb_build_object('display_name', clean_name),
+  set raw_user_meta_data = case
+        when clean_name <> '' then coalesce(raw_user_meta_data, '{}'::jsonb) || jsonb_build_object('display_name', clean_name)
+        else raw_user_meta_data
+      end,
       encrypted_password = case
         when new_password is not null and length(trim(new_password)) >= 8
         then crypt(trim(new_password), gen_salt('bf'))

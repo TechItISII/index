@@ -893,22 +893,29 @@ document.addEventListener("DOMContentLoaded", async () => {
           return;
         }
 
-        // Send welcome / password-setup email via Supabase Auth
-        const redirectUrl = `${window.location.origin}/admin.html#profile`;
-        const { error: mailErr } = await client.auth.resetPasswordForEmail(email, {
-          redirectTo: redirectUrl
+        // Send welcome sign-in email (uses Supabase Magic Link template instead of Reset Password)
+        const baseOrigin = window.location.origin.startsWith("http")
+          ? window.location.origin
+          : "https://techit.isii.it";
+        const redirectUrl = `${baseOrigin}/admin.html`;
+        const { error: mailErr } = await client.auth.signInWithOtp({
+          email,
+          options: {
+            shouldCreateUser: false,
+            emailRedirectTo: redirectUrl
+          }
         });
 
         if (mailErr) {
           showFeedback(
             dashFeedback,
-            `Account ${email} created as ${role.toUpperCase()}, but email notice failed: ${mailErr.message}`,
+            `Account ${email} created as ${role.toUpperCase()}, but welcome email failed: ${mailErr.message}`,
             false
           );
         } else {
           showFeedback(
             dashFeedback,
-            `Account ${email} created as ${role.toUpperCase()} and welcome email sent!`,
+            `Account ${email} created as ${role.toUpperCase()} and welcome login email sent!`,
             false
           );
         }
