@@ -1,0 +1,80 @@
+<!-- ============================================================================
+     TECH IT ISII #25074 — BRANDED EMAIL TEMPLATE FOR SUPABASE AUTH
+     Paste this into: Supabase Dashboard -> Authentication -> Email Templates -> Magic Link
+     Suggested Subject: Benvenuto in Tech It ISII #25074 — Attiva il tuo account
+     ============================================================================ -->
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Tech It ISII #25074</title>
+</head>
+<body style="margin:0;padding:0;background-color:#07090e;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;color:#f8fafc;">
+  <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="background-color:#07090e;padding:32px 16px;">
+    <tr>
+      <td align="center">
+        <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="max-width:560px;background-color:#0c1018;border:1px solid #3f1220;border-top:3px solid #e11d48;">
+
+          <!-- HEADER -->
+          <tr>
+            <td align="center" style="padding:32px 28px 20px;border-bottom:1px solid #1e293b;">
+              <img src="https://techit.isii.it/IMG/logo-emblem.png" alt="Tech It ISII #25074" width="84" style="display:block;border:0;outline:none;margin-bottom:14px;" />
+              <div style="font-size:11px;font-weight:700;letter-spacing:2.5px;color:#ff1e38;text-transform:uppercase;margin-bottom:6px;">
+                // FIRST TECH CHALLENGE · PIACENZA, ITALY
+              </div>
+              <div style="font-size:24px;font-weight:900;letter-spacing:2px;color:#ffffff;text-transform:uppercase;">
+                TECH IT <span style="color:#ff1e38;">ISII</span> #25074
+              </div>
+            </td>
+          </tr>
+
+          <!-- BODY -->
+          <tr>
+            <td style="padding:32px 28px;">
+              <h1 style="margin:0 0 14px;font-size:20px;font-weight:800;color:#ffffff;letter-spacing:0.5px;">
+                Benvenuto nel Team Portal
+              </h1>
+              <p style="margin:0 0 16px;font-size:15px;line-height:1.65;color:#cbd5e1;">
+                Un amministratore ha attivato il tuo accesso per <strong style="color:#ffffff;">{{ .Email }}</strong> sul portale ufficiale di <strong style="color:#ffffff;">Tech It ISII #25074</strong> (ISII "Guglielmo Marconi" — Piacenza).
+              </p>
+              <p style="margin:0 0 24px;font-size:14px;line-height:1.65;color:#94a3b8;">
+                Clicca sul pulsante qui sotto per accedere: al primo ingresso ti verrà chiesto di <strong style="color:#ffffff;">impostare la tua password personale</strong> e di collegare l'<strong style="color:#ffffff;">autenticazione a 2 fattori (2FA)</strong>.
+              </p>
+
+              <!-- CTA BUTTON -->
+              <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="margin:24px 0;">
+                <tr>
+                  <td align="center">
+                    <a href="{{ .ConfirmationURL }}" target="_blank" style="display:inline-block;background-color:#e11d48;color:#ffffff;text-decoration:none;font-size:14px;font-weight:800;letter-spacing:1.8px;text-transform:uppercase;padding:15px 30px;border:1px solid #ff1e38;">
+                      ACCEDI AL PORTALE →
+                    </a>
+                  </td>
+                </tr>
+              </table>
+
+              <p style="margin:20px 0 0;font-size:12px;line-height:1.6;color:#64748b;">
+                Se il pulsante non funziona, copia e incolla questo link nel browser:<br />
+                <a href="{{ .ConfirmationURL }}" style="color:#ff1e38;word-break:break-all;">{{ .ConfirmationURL }}</a>
+              </p>
+            </td>
+          </tr>
+
+          <!-- FOOTER -->
+          <tr>
+            <td style="padding:18px 28px;background-color:#07090e;border-top:1px solid #1e293b;text-align:center;">
+              <div style="font-size:11px;letter-spacing:1.5px;color:#64748b;text-transform:uppercase;">
+                TECH IT ISII #25074 · ISII G. MARCONI · PIACENZA
+              </div>
+              <div style="font-size:11px;color:#475569;margin-top:4px;">
+                Se non aspettavi questa email, puoi ignorarla in sicurezza.
+              </div>
+            </td>
+          </tr>
+
+        </table>
+      </td>
+    </tr>
+  </table>
+</body>
+</html>

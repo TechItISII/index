@@ -153,12 +153,13 @@ begin
 end;
 $$;
 
--- Admin RPC: update any user's display_name, role, or password
+-- Admin RPC: update any user's email, display_name, role, or password
 create or replace function public.admin_update_user(
   target_user_id uuid,
   new_display_name text,
   new_role text,
-  new_password text default null
+  new_password text default null,
+  new_email text default null
 )
 returns void
 language plpgsql
@@ -168,6 +169,7 @@ as $$
 declare
   clean_name text := trim(coalesce(new_display_name, ''));
   clean_role text := case when new_role = 'admin' then 'admin' else 'insider' end;
+  clean_email text := lower(trim(coalesce(new_email, '')));
 begin
   if not public.is_admin() then
     raise exception 'Only admins can update accounts';
@@ -178,14 +180,24 @@ begin
   if target_user_id = auth.uid() and clean_role <> 'admin' then
     raise exception 'You cannot demote your own active admin account';
   end if;
+  if clean_email <> '' then
+    if clean_email not like '%@%' then
+      raise exception 'Invalid email address';
+    end if;
+    if exists (select 1 from auth.users where email = clean_email and id <> target_user_id) then
+      raise exception 'Another account already uses this email';
+    end if;
+  end if;
 
   update public.profiles
   set display_name = case when clean_name <> '' then clean_name else display_name end,
+      email = case when clean_email <> '' then clean_email else email end,
       role = clean_role
   where id = target_user_id;
 
   update auth.users
-  set raw_user_meta_data = case
+  set email = case when clean_email <> '' then clean_email else email end,
+      raw_user_meta_data = case
         when clean_name <> '' then coalesce(raw_user_meta_data, '{}'::jsonb) || jsonb_build_object('display_name', clean_name)
         else raw_user_meta_data
       end,
@@ -196,6 +208,13 @@ begin
       end,
       updated_at = now()
   where id = target_user_id;
+
+  if clean_email <> '' then
+    update auth.identities
+    set identity_data = coalesce(identity_data, '{}'::jsonb) || jsonb_build_object('email', clean_email),
+        updated_at = now()
+    where user_id = target_user_id and provider = 'email';
+  end if;
 end;
 $$;
 

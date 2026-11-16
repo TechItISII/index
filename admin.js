@@ -725,7 +725,7 @@ document.addEventListener("DOMContentLoaded", async () => {
             if (!userRow) return;
             manageUserId.value = userRow.id;
             manageUserEmail.value = userRow.email;
-            manageUserEmail.disabled = true;
+            manageUserEmail.disabled = false;
             manageUserDisplayName.value = userRow.display_name || "";
             manageUserRole.value = userRow.role || "insider";
             manageUserPassword.value = "";
@@ -869,7 +869,8 @@ document.addEventListener("DOMContentLoaded", async () => {
           target_user_id: editingId,
           new_display_name: displayName,
           new_role: role,
-          new_password: password || null
+          new_password: password || null,
+          new_email: email
         });
         if (error) {
           showFeedback(dashFeedback, `Update user error: ${error.message}`, true);
