@@ -454,10 +454,15 @@ document.addEventListener("DOMContentLoaded", () => {
       }
 
       if (fromMobileMenu) {
+        // On mobile: jump behind the open menu so scrolling is hidden, then close menu smoothly
         blockFastScrollUntil = performance.now() + 1600;
         setTimeout(() => {
-          runDirectionalScroll(targetY, e.clientX || window.innerWidth * 0.5, e.clientY || window.innerHeight * 0.5, false);
-        }, 420);
+          document.documentElement.style.scrollBehavior = "auto";
+          window.scrollTo(0, targetY);
+          lastScrollY = window.scrollY;
+          document.documentElement.style.scrollBehavior = "";
+          setMenuState(false);
+        }, 240);
       } else {
         runDirectionalScroll(targetY, e.clientX || window.innerWidth * 0.5, e.clientY || window.innerHeight * 0.5, shouldUseAir);
       }
@@ -584,12 +589,8 @@ document.addEventListener("DOMContentLoaded", () => {
 
     document.querySelectorAll(".nav-link").forEach(link => {
       link.addEventListener("click", () => {
-        if (!isFinePointer && isCrossPageInternal(link)) return;
-        if (!isFinePointer && navLinks.classList.contains("active")) {
-          setTimeout(() => setMenuState(false), 240);
-        } else {
-          setMenuState(false);
-        }
+        if (!isFinePointer && navLinks.classList.contains("active")) return;
+        setMenuState(false);
       });
     });
 
