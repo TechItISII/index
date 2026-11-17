@@ -445,14 +445,21 @@ document.addEventListener("DOMContentLoaded", () => {
       const targetY = isTopLink
         ? 0
         : Math.max(0, Math.min(targetEl.getBoundingClientRect().top + window.scrollY - 72, maxScroll));
+      const isBackToTopOrLogo = link.id === "backToTopBtn" || link.classList.contains("nav-logo");
       const fromMobileMenu = !isFinePointer && Boolean(navLinks && navLinks.classList.contains("active"));
+      const shouldUseAir = isFinePointer || isBackToTopOrLogo;
+
+      if (!shouldUseAir) {
+        blockFastScrollUntil = performance.now() + 1600;
+      }
+
       if (fromMobileMenu) {
-        blockFastScrollUntil = performance.now() + 1400;
+        blockFastScrollUntil = performance.now() + 1600;
         setTimeout(() => {
           runDirectionalScroll(targetY, e.clientX || window.innerWidth * 0.5, e.clientY || window.innerHeight * 0.5, false);
         }, 420);
       } else {
-        runDirectionalScroll(targetY, e.clientX || window.innerWidth * 0.5, e.clientY || window.innerHeight * 0.5, true);
+        runDirectionalScroll(targetY, e.clientX || window.innerWidth * 0.5, e.clientY || window.innerHeight * 0.5, shouldUseAir);
       }
       return;
     }
