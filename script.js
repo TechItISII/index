@@ -131,6 +131,15 @@ document.addEventListener("DOMContentLoaded", () => {
     if (!clickable) return;
 
     if (!isFinePointer) {
+      // On menu toggle & account trigger: flash crosshair reticle pulse instead of TARGET ACQUIRED
+      if (clickable.id === "navToggle" || clickable.id === "navUserTrigger") {
+        clickable.classList.remove("is-btn-crosshair");
+        clickable.offsetHeight;
+        clickable.classList.add("is-btn-crosshair");
+        setTimeout(() => clickable.classList.remove("is-btn-crosshair"), 360);
+        return;
+      }
+
       // On mobile: the button/logo itself transforms into TARGET ACQUIRED (glitched if changing page)
       const crossPage = isCrossPageInternal(clickable);
       triggerButtonTarget(clickable, crossPage, crossPage ? 420 : 600);
@@ -498,7 +507,13 @@ document.addEventListener("DOMContentLoaded", () => {
     });
 
     document.querySelectorAll(".nav-link").forEach(link => {
-      link.addEventListener("click", () => setMenuState(false));
+      link.addEventListener("click", () => {
+        if (!isFinePointer && navLinks.classList.contains("active")) {
+          setTimeout(() => setMenuState(false), 240);
+        } else {
+          setMenuState(false);
+        }
+      });
     });
 
     document.addEventListener("click", (e) => {
