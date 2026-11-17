@@ -131,8 +131,8 @@ document.addEventListener("DOMContentLoaded", () => {
     if (!clickable) return;
 
     if (!isFinePointer) {
-      // On account trigger: open/close cleanly without crosshair or TARGET ACQUIRED
-      if (clickable.id === "navUserTrigger") {
+      // On account trigger or Easter Egg: run their own behavior without crosshair or TARGET ACQUIRED
+      if (clickable.id === "navUserTrigger" || clickable.id === "EasterEgg-trigger") {
         return;
       }
       // On menu toggle: flash crosshair reticle pulse instead of TARGET ACQUIRED
@@ -319,6 +319,8 @@ document.addEventListener("DOMContentLoaded", () => {
           document.documentElement.style.scrollBehavior = "";
           airSpeedOverlay.classList.remove("is-active", "is-down");
           isAnimatingScroll = false;
+          blockFastScrollUntil = performance.now() + 450;
+          lastScrollY = window.scrollY;
           if (onDone) onDone();
         }
       };
@@ -444,7 +446,14 @@ document.addEventListener("DOMContentLoaded", () => {
         ? 0
         : Math.max(0, Math.min(targetEl.getBoundingClientRect().top + window.scrollY - 72, maxScroll));
       const fromMobileMenu = !isFinePointer && Boolean(navLinks && navLinks.classList.contains("active"));
-      runDirectionalScroll(targetY, e.clientX || window.innerWidth * 0.5, e.clientY || window.innerHeight * 0.5, !fromMobileMenu);
+      if (fromMobileMenu) {
+        blockFastScrollUntil = performance.now() + 1400;
+        setTimeout(() => {
+          runDirectionalScroll(targetY, e.clientX || window.innerWidth * 0.5, e.clientY || window.innerHeight * 0.5, false);
+        }, 420);
+      } else {
+        runDirectionalScroll(targetY, e.clientX || window.innerWidth * 0.5, e.clientY || window.innerHeight * 0.5, true);
+      }
       return;
     }
 
@@ -511,18 +520,19 @@ document.addEventListener("DOMContentLoaded", () => {
   let lastScrollY = window.scrollY;
   let lastScrollTime = performance.now();
   let fastScrollTimer = null;
+  let blockFastScrollUntil = 0;
 
   window.addEventListener("scroll", () => {
     const curY = window.scrollY;
+    const now = performance.now();
     if (navbar) navbar.classList.toggle("scrolled", curY > 50);
 
-    if (isAnimatingScroll) {
+    if (isAnimatingScroll || now < blockFastScrollUntil || (navLinks && navLinks.classList.contains("active"))) {
       lastScrollY = curY;
-      lastScrollTime = performance.now();
+      lastScrollTime = now;
       return;
     }
 
-    const now = performance.now();
     const dy = curY - lastScrollY;
     const dt = Math.max(now - lastScrollTime, 16);
     const speed = Math.abs(dy) / dt;
