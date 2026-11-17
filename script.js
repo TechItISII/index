@@ -92,6 +92,21 @@ document.addEventListener("DOMContentLoaded", () => {
     const clickable = e.target.closest("a, button, .btn, .roster-tab, .blog-card, input[type='submit']");
     if (!clickable) return;
 
+    if (!isFinePointer) {
+      // On mobile: anchor TARGET ACQUIRED directly to the tapped button/element
+      const rect = clickable.getBoundingClientRect();
+      const bx = rect.left + rect.width / 2;
+      const by = rect.bottom + 8 > window.innerHeight - 36 ? rect.top - 34 : rect.bottom + 8;
+      targetTag.style.left = `${Math.max(85, Math.min(bx, window.innerWidth - 85))}px`;
+      targetTag.style.top = `${Math.max(12, by)}px`;
+      targetTag.classList.remove("is-glitched");
+      targetTag.textContent = "TARGET ACQUIRED";
+      targetTag.classList.add("is-shown");
+      clearTimeout(targetTagTimer);
+      targetTagTimer = setTimeout(() => targetTag.classList.remove("is-shown"), 650);
+      return;
+    }
+
     showTargetAcquired(e.clientX, e.clientY, 700);
     try {
       sessionStorage.setItem(
@@ -136,9 +151,9 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
-  // Arrival from Black Hole Portal: open -> spit out cursor -> close & disappear
+  // Arrival from Black Hole Portal (desktop only): open -> spit out cursor -> close & disappear
   try {
-    const portalArrival = sessionStorage.getItem("techit_portal_arrival");
+    const portalArrival = isFinePointer ? sessionStorage.getItem("techit_portal_arrival") : null;
     if (portalArrival) {
       sessionStorage.removeItem("techit_portal_arrival");
       const { x, y, expires } = JSON.parse(portalArrival);
@@ -352,10 +367,10 @@ document.addEventListener("DOMContentLoaded", () => {
       return;
     }
 
-    // Cross-page internal link (e.g. blog.html, social.html, admin.html, index.html) -> Cyber Portal
+    // Cross-page internal link -> Cyber Portal (desktop only; normal navigation on mobile)
     const [pagePart] = href.split("#");
     const currentFile = window.location.pathname.split("/").pop() || "index.html";
-    if (pagePart && pagePart !== currentFile && /\.(html)$/i.test(pagePart)) {
+    if (isFinePointer && pagePart && pagePart !== currentFile && /\.(html)$/i.test(pagePart)) {
       e.preventDefault();
       const px = e.clientX || window.innerWidth * 0.5;
       const py = e.clientY || window.innerHeight * 0.5;
@@ -410,7 +425,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const dt = Math.max(now - lastScrollTime, 16);
     const speed = Math.abs(dy) / dt;
 
-    if (speed > 2.2 && Math.abs(dy) > 35) {
+    if (speed > 5.5 && Math.abs(dy) > 160) {
       airSpeedOverlay.classList.toggle("is-down", dy > 0);
       airSpeedOverlay.classList.add("is-active");
       document.body.classList.add("is-air-rushing");
