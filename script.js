@@ -415,16 +415,23 @@ document.addEventListener("DOMContentLoaded", () => {
       return;
     }
 
-    // Cross-page internal link -> Cyber Portal on desktop, glitched button delay on mobile
+    // Cross-page internal link -> Cyber Portal on desktop, seamless menu handoff + glitch on mobile
     const [pagePart] = href.split("#");
     const currentFile = window.location.pathname.split("/").pop() || "index.html";
     if (pagePart && pagePart !== currentFile && /\.(html)$/i.test(pagePart)) {
       e.preventDefault();
       if (!isFinePointer) {
-        triggerButtonTarget(link, true, 380);
+        const menuEl = document.querySelector(".nav-links");
+        const isMenuOpen = menuEl && menuEl.classList.contains("active");
+        if (isMenuOpen) {
+          try {
+            sessionStorage.setItem("techit_menu_closing", String(Date.now() + 2800));
+          } catch {}
+        }
+        triggerButtonTarget(link, true, 360);
         setTimeout(() => {
           window.location.href = href;
-        }, 320);
+        }, 300);
         return;
       }
       const px = e.clientX || window.innerWidth * 0.5;
@@ -511,12 +518,23 @@ document.addEventListener("DOMContentLoaded", () => {
   };
 
   if (navToggle && navLinks) {
+    // Seamless mobile menu closing handoff after cross-page navigation
+    if (document.documentElement.classList.contains("menu-preload-open")) {
+      try { sessionStorage.removeItem("techit_menu_closing"); } catch {}
+      setMenuState(true);
+      requestAnimationFrame(() => {
+        document.documentElement.classList.remove("menu-preload-open");
+        setTimeout(() => setMenuState(false), 60);
+      });
+    }
+
     navToggle.addEventListener("click", () => {
       setMenuState(!navLinks.classList.contains("active"));
     });
 
     document.querySelectorAll(".nav-link").forEach(link => {
       link.addEventListener("click", () => {
+        if (!isFinePointer && isCrossPageInternal(link)) return;
         if (!isFinePointer && navLinks.classList.contains("active")) {
           setTimeout(() => setMenuState(false), 240);
         } else {

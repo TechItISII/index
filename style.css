@@ -416,6 +416,7 @@ a { text-decoration: none; color: inherit; }
 
 /* Hamburger */
 .nav-toggle {
+  position: relative;
   display: none;
   flex-direction: column;
   justify-content: center;
@@ -1481,6 +1482,19 @@ a { text-decoration: none; color: inherit; }
     transition: transform 0.42s cubic-bezier(0.22, 1, 0.36, 1) 0s, visibility 0s linear 0s;
   }
 
+  /* Seamless cross-page menu handoff (starts open on new page, then slides shut) */
+  html.menu-preload-open .nav-links {
+    transform: translateX(0) !important;
+    visibility: visible !important;
+    border-left-color: var(--crimson-bright) !important;
+    transition: none !important;
+  }
+  html.menu-preload-open .nav-links li {
+    opacity: 1 !important;
+    transform: none !important;
+    transition: none !important;
+  }
+
   .nav-links li {
     width: 100%; opacity: 0; transform: translateX(25px);
     transition: opacity 0.22s ease, transform 0.22s ease;
@@ -1583,9 +1597,9 @@ a { text-decoration: none; color: inherit; }
   .team-grid { grid-template-columns: 1fr; }
 }
 
-@media (pointer: coarse) {
+@media (pointer: coarse), (hover: none) {
   * { cursor: auto; }
-  .cursor-dot, .cursor-ring { display: none; }
+  .cursor-dot, .cursor-ring { display: none !important; }
 }
 
 /* =========================================
@@ -1993,6 +2007,7 @@ a { text-decoration: none; color: inherit; }
   position: relative;
 }
 .nav-user-trigger {
+  position: relative;
   display: inline-flex;
   align-items: center;
   gap: 0.6rem;
@@ -2690,6 +2705,7 @@ a { text-decoration: none; color: inherit; }
 
 @media (pointer: fine) {
   a, button, [role="button"], input, textarea, select, label,
+  .nav-logo, .nav-logo *,
   .roster-tab, .blog-card, .news-card-trigger, .nav-toggle,
   .EasterEgg-text, .nav-user-trigger, .nav-dropdown-link,
   .news-modal-close, .admin-checkbox {
@@ -2729,39 +2745,37 @@ a { text-decoration: none; color: inherit; }
 
 @keyframes blackHoleSuck {
   0% {
-    width: 32px; height: 32px;
+    scale: 1;
+    rotate: 0deg;
     opacity: 1;
-    filter: blur(0px);
-    box-shadow: 0 0 12px rgba(255, 30, 56, 0.8);
   }
   65% {
-    width: 14px; height: 14px;
+    scale: 0.42;
+    rotate: 180deg;
     opacity: 0.85;
-    filter: blur(1px);
-    box-shadow: 0 0 22px rgba(255, 30, 56, 1);
   }
   100% {
-    width: 2px; height: 2px;
+    scale: 0.05;
+    rotate: 360deg;
     opacity: 0;
-    filter: blur(3px);
   }
 }
 
 @keyframes blackHoleSpit {
   0% {
-    width: 2px; height: 2px;
+    scale: 0.05;
+    rotate: -240deg;
     opacity: 0;
-    filter: blur(3px);
   }
   55% {
-    width: 38px; height: 38px;
+    scale: 1.18;
+    rotate: -20deg;
     opacity: 1;
-    filter: blur(0.5px);
   }
   100% {
-    width: 32px; height: 32px;
+    scale: 1;
+    rotate: 0deg;
     opacity: 1;
-    filter: blur(0px);
   }
 }
 
