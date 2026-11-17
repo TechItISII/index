@@ -7,9 +7,11 @@
 window.TECHIT_CONFIG = {
   SUPABASE_URL: "https://fxszsmtlhqsbpwcodbms.supabase.co",
   SUPABASE_ANON_KEY: "sb_publishable_YRnpGSWZD4B7fM3gY4ekVw_uyTFUzKM",
-  // Optional: add your YouTube Data API v3 key & Channel ID for automatic YT Live detection
-  YOUTUBE_API_KEY: "",
-  YOUTUBE_CHANNEL_ID: ""
+  // Optional: add your YouTube Data API v3 key & Channel ID for automatic YT Live & latest 3 videos
+  YOUTUBE_API_KEY: "AIzaSyCnadJYyL3CzxI3PGDz3VBEiPsnzxNnQEI",
+  YOUTUBE_CHANNEL_ID: "UCDrGwSrmWaXDmEpJ8Zhh-HA",
+  // Optional: add your free Behold.so JSON feed URL for latest 3 Instagram posts
+  BEHOLD_FEED_URL: "https://feeds.behold.so/8C5JPPA2kQjkQS29utWv"
 };
 
 window.TechItHelpers = {

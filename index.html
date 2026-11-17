@@ -39,7 +39,8 @@
       <li><a href="#team" class="nav-link" data-index="04">ROSTER</a></li>
       <li><a href="#stagioni" class="nav-link" data-index="05">SEASONS</a></li>
       <li><a href="blog.html" class="nav-link" data-index="06">BLOG</a></li>
-      <li><a href="#contatti" class="nav-link cta-nav" data-index="07">CONTACT</a></li>
+      <li><a href="social.html" class="nav-link" data-index="07">SOCIAL</a></li>
+      <li><a href="#contatti" class="nav-link cta-nav" data-index="08">CONTACT</a></li>
       <li class="nav-auth-item" id="navAuthSlot">
         <a href="admin.html" class="nav-login-btn">LOGIN</a>
       </li>
@@ -501,19 +502,73 @@
           <p>Are you a sponsor, a school partner, a journalist, or simply a robotics enthusiast? Reach out to us — we’re
             always ready to talk robotics, engineering, and partnerships.</p>
           <div class="contact-info">
-            <a href="mailto:techit@isii.it" id="siteContactEmailLink" class="contact-item">
-              <span class="contact-icon">📧</span>
+            <a href="mailto:techit@isii.it" id="siteContactEmailLink" class="contact-item is-email">
+              <span class="contact-icon" aria-hidden="true">
+                <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <defs>
+                    <linearGradient id="gradEmail" x1="0%" y1="0%" x2="100%" y2="100%">
+                      <stop offset="0%" stop-color="#86efac" />
+                      <stop offset="50%" stop-color="#22c55e" />
+                      <stop offset="100%" stop-color="#15803d" />
+                    </linearGradient>
+                  </defs>
+                  <rect class="svg-stroke" x="2" y="4" width="20" height="16" rx="3" stroke="currentColor"></rect>
+                  <path class="svg-stroke" d="M2 7l10 6 10-6" stroke="currentColor"></path>
+                </svg>
+              </span>
               <span id="siteContactEmailText">techit@isii.it</span>
             </a>
             <a href="https://www.instagram.com/tech_it_isii?igsh=czV2NGNjMWVxeXBp" id="siteInstagramLink"
-              target="_blank" rel="noopener noreferrer" class="contact-item">
-              <span class="contact-icon">📱</span>
+              target="_blank" rel="noopener noreferrer" class="contact-item is-ig">
+              <span class="contact-icon" aria-hidden="true">
+                <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <defs>
+                    <linearGradient id="gradIg" x1="0%" y1="100%" x2="100%" y2="0%">
+                      <stop offset="0%" stop-color="#f09433" />
+                      <stop offset="35%" stop-color="#e6683c" />
+                      <stop offset="65%" stop-color="#dc2743" />
+                      <stop offset="100%" stop-color="#bc1888" />
+                    </linearGradient>
+                  </defs>
+                  <rect class="svg-stroke" x="2" y="2" width="20" height="20" rx="5" ry="5" stroke="currentColor"></rect>
+                  <path class="svg-stroke" d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z" stroke="currentColor"></path>
+                  <line class="svg-stroke" x1="17.5" y1="6.5" x2="17.51" y2="6.5" stroke="currentColor"></line>
+                </svg>
+              </span>
               <span>@tech_it_isii on Instagram</span>
             </a>
             <a href="https://www.youtube.com/@TechItISII" id="siteYoutubeLink" target="_blank" rel="noopener noreferrer"
-              class="contact-item">
-              <span class="contact-icon">📹</span>
+              class="contact-item is-yt">
+              <span class="contact-icon" aria-hidden="true">
+                <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <defs>
+                    <linearGradient id="gradYt" x1="0%" y1="0%" x2="100%" y2="100%">
+                      <stop offset="0%" stop-color="#ff6b6b" />
+                      <stop offset="50%" stop-color="#ff0000" />
+                      <stop offset="100%" stop-color="#991b1b" />
+                    </linearGradient>
+                  </defs>
+                  <path class="svg-stroke" d="M22.54 6.42a2.78 2.78 0 0 0-1.94-2C18.88 4 12 4 12 4s-6.88 0-8.6.46a2.78 2.78 0 0 0-1.94 2A29 29 0 0 0 1 11.75a29 29 0 0 0 .46 5.33A2.78 2.78 0 0 0 3.4 19c1.72.46 8.6.46 8.6.46s6.88 0 8.6-.46a2.78 2.78 0 0 0 1.94-2 29 29 0 0 0 .46-5.25 29 29 0 0 0-.46-5.33z" stroke="currentColor"></path>
+                  <polygon class="svg-fill" points="9.75 15.02 15.5 11.75 9.75 8.48 9.75 15.02" fill="currentColor"></polygon>
+                </svg>
+              </span>
               <span>@TechItISII on YouTube</span>
+            </a>
+            <a href="https://x.com/TechItISII" id="siteXLink" target="_blank" rel="noopener noreferrer"
+              class="contact-item is-x">
+              <span class="contact-icon" aria-hidden="true">
+                <svg viewBox="0 0 24 24" width="17" height="17">
+                  <defs>
+                    <linearGradient id="gradX" x1="0%" y1="0%" x2="100%" y2="100%">
+                      <stop offset="0%" stop-color="#93c5fd" />
+                      <stop offset="50%" stop-color="#1d9bf0" />
+                      <stop offset="100%" stop-color="#1d4ed8" />
+                    </linearGradient>
+                  </defs>
+                  <path class="svg-fill" fill="currentColor" d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"></path>
+                </svg>
+              </span>
+              <span>@TechItISII on X</span>
             </a>
           </div>
         </div>
@@ -573,7 +628,7 @@
           <a href="admin.html">Admin 🔒</a>
           <a href="https://www.firstinspires.org" target="_blank" rel="noopener noreferrer">FIRST Inspires ↗</a>
           <a href="https://github.com/techitisii" target="_blank" rel="noopener noreferrer">GitHub ↗</a>
-          <a href="#hero">Back to top ↑</a>
+          <a href="#hero" id="backToTopBtn">Back to top ↑</a>
         </div>
       </div>
       <div class="footer-bottom">
@@ -585,6 +640,35 @@
       </div>
     </div>
   </footer>
+
+  <!-- AIR SPEED LINES OVERLAY (CARTOON ROCKET WIND STREAKS) -->
+  <div class="air-speed-overlay" id="airSpeedOverlay" aria-hidden="true">
+    <span class="wind-streak" style="--x:6%;--h:130px;--d:0.28s;--del:0s;"></span>
+    <span class="wind-streak is-red" style="--x:13%;--h:190px;--d:0.34s;--del:0.08s;"></span>
+    <span class="wind-streak" style="--x:22%;--h:110px;--d:0.26s;--del:0.14s;"></span>
+    <span class="wind-streak" style="--x:31%;--h:170px;--d:0.32s;--del:0.04s;"></span>
+    <span class="wind-streak is-red" style="--x:44%;--h:140px;--d:0.29s;--del:0.12s;"></span>
+    <span class="wind-streak" style="--x:58%;--h:200px;--d:0.35s;--del:0.02s;"></span>
+    <span class="wind-streak is-red" style="--x:69%;--h:120px;--d:0.27s;--del:0.1s;"></span>
+    <span class="wind-streak" style="--x:79%;--h:180px;--d:0.33s;--del:0.06s;"></span>
+    <span class="wind-streak" style="--x:88%;--h:140px;--d:0.28s;--del:0.15s;"></span>
+    <span class="wind-streak is-red" style="--x:94%;--h:160px;--d:0.31s;--del:0.05s;"></span>
+  </div>
+
+  <!-- ROBOTIC ARM BACK-TO-TOP OVERLAY (HORIZONTAL FROM RIGHT EDGE) -->
+  <div class="robot-arm-overlay" id="robotArmOverlay" aria-hidden="true">
+    <svg class="robot-arm-svg" viewBox="0 0 1600 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <!-- Long Horizontal Telescopic Arm Shaft extending to right edge -->
+      <rect x="54" y="42" width="1546" height="16" rx="4" fill="#121624" stroke="#FFFFFF" stroke-width="2"/>
+      <rect x="64" y="47" width="1536" height="6" rx="2" fill="#E11D48" opacity="0.85"/>
+      <!-- Servo Joint -->
+      <circle cx="54" cy="50" r="14" fill="#0B0E16" stroke="#FF1E38" stroke-width="2.5"/>
+      <circle cx="54" cy="50" r="5" fill="#FFFFFF"/>
+      <!-- Top & Bottom Claw Fingers pointing left (tip around x=20, y=50) -->
+      <path class="claw-top" d="M46 38 L26 18 L8 28 L14 38 L24 32 L38 44 Z" fill="#181E2E" stroke="#FFFFFF" stroke-width="2" stroke-linejoin="round"/>
+      <path class="claw-bottom" d="M46 62 L26 82 L8 72 L14 62 L24 68 L38 56 Z" fill="#181E2E" stroke="#FF1E38" stroke-width="2" stroke-linejoin="round"/>
+    </svg>
+  </div>
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="supabase-config.js"></script>

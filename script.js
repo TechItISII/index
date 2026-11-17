@@ -8,10 +8,12 @@ document.addEventListener("DOMContentLoaded", () => {
     let mouseX = -100, mouseY = -100;
     let ringX = -100, ringY = -100;
     let hasMoved = false;
+    let isRobotCarrying = false;
 
     window.addEventListener("mousemove", (e) => {
       mouseX = e.clientX;
       mouseY = e.clientY;
+      if (isRobotCarrying) return;
       if (!hasMoved) {
         ringX = mouseX;
         ringY = mouseY;
@@ -23,13 +25,135 @@ document.addEventListener("DOMContentLoaded", () => {
     });
 
     function animateCursor() {
-      const ease = 0.18;
-      ringX += (mouseX - ringX) * ease;
-      ringY += (mouseY - ringY) * ease;
-      cursorRing.style.transform = `translate3d(${ringX}px, ${ringY}px, 0) translate(-50%, -50%)`;
+      if (!isRobotCarrying) {
+        const ease = 0.18;
+        ringX += (mouseX - ringX) * ease;
+        ringY += (mouseY - ringY) * ease;
+        cursorRing.style.transform = `translate3d(${ringX}px, ${ringY}px, 0) translate(-50%, -50%)`;
+      }
       requestAnimationFrame(animateCursor);
     }
     animateCursor();
+
+    // Robotic Arm Back-to-Top Animation (from right edge + air-cutting speed lines)
+    const backToTopBtn = document.getElementById("backToTopBtn");
+    const robotArmOverlay = document.getElementById("robotArmOverlay");
+    const airSpeedOverlay = document.getElementById("airSpeedOverlay");
+
+    if (backToTopBtn && robotArmOverlay) {
+      backToTopBtn.addEventListener("click", (e) => {
+        if (isRobotCarrying) {
+          e.preventDefault();
+          return;
+        }
+        e.preventDefault();
+        isRobotCarrying = true;
+
+        const startX = hasMoved ? mouseX : window.innerWidth * 0.5;
+        const startY = hasMoved ? mouseY : window.innerHeight - 90;
+        const holdX = Math.min(startX + 110, window.innerWidth - 65);
+        const startScroll = window.scrollY;
+
+        // Claw tip sits at (22, 50) inside the 1600x100 SVG
+        const placeArmAndCursor = (x, y) => {
+          cursorDot.style.transform = `translate3d(${x}px, ${y}px, 0) translate(-50%, -50%)`;
+          cursorRing.style.transform = `translate3d(${x}px, ${y}px, 0) translate(-50%, -50%)`;
+          robotArmOverlay.style.transform = `translate3d(${x - 22}px, ${y - 50}px, 0)`;
+        };
+
+        // 1. Emerge horizontally from the right edge to the cursor (smooth & deliberate)
+        robotArmOverlay.style.transition = "none";
+        robotArmOverlay.style.transform = `translate3d(${window.innerWidth + 30}px, ${startY - 50}px, 0)`;
+        robotArmOverlay.classList.add("is-visible");
+        robotArmOverlay.offsetHeight;
+
+        robotArmOverlay.style.transition = "transform 0.52s cubic-bezier(0.22, 1, 0.36, 1), opacity 0.25s ease";
+        robotArmOverlay.style.transform = `translate3d(${startX - 22}px, ${startY - 50}px, 0)`;
+
+        setTimeout(() => {
+          // 2. Grab cursor, pause briefly, then pull slightly right
+          robotArmOverlay.classList.add("is-grabbing");
+          document.body.classList.add("cursor-hover");
+
+          setTimeout(() => {
+            const pullDuration = 380;
+            const pullStart = performance.now();
+            const pullStep = (now) => {
+              const p = Math.min((now - pullStart) / pullDuration, 1);
+              const easedP = 1 - Math.pow(1 - p, 3);
+              const curX = startX + (holdX - startX) * easedP;
+              placeArmAndCursor(curX, startY);
+
+              if (p < 1) {
+                requestAnimationFrame(pullStep);
+              } else {
+                // Wait until settled on the right before starting upward scroll
+                setTimeout(() => {
+                  // 3. Scroll to top with cartoon rocket wind streaks
+                  if (airSpeedOverlay) airSpeedOverlay.classList.add("is-active");
+                  document.body.classList.add("is-air-rushing");
+
+                  const scrollDuration = 950;
+                  const scrollStart = performance.now();
+                  const easeInOutCubic = (t) =>
+                    t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
+
+                  const scrollStep = (tNow) => {
+                    const elapsed = tNow - scrollStart;
+                    const progress = Math.min(elapsed / scrollDuration, 1);
+                    const eased = easeInOutCubic(progress);
+                    window.scrollTo(0, startScroll * (1 - eased));
+
+                    if (progress < 1) {
+                      requestAnimationFrame(scrollStep);
+                    } else {
+                      window.scrollTo(0, 0);
+                      if (airSpeedOverlay) airSpeedOverlay.classList.remove("is-active");
+                      document.body.classList.remove("is-air-rushing");
+
+                      // Wait until screen is completely still before returning cursor
+                      setTimeout(() => {
+                        // 4. Return cursor smoothly to exact original screen position (startX, startY)
+                        const returnDuration = 380;
+                        const returnStart = performance.now();
+                        const returnStep = (rNow) => {
+                          const rp = Math.min((rNow - returnStart) / returnDuration, 1);
+                          const easedR = 1 - Math.pow(1 - rp, 3);
+                          const rx = holdX + (startX - holdX) * easedR;
+                          placeArmAndCursor(rx, startY);
+
+                          if (rp < 1) {
+                            requestAnimationFrame(returnStep);
+                          } else {
+                            // 5. Release cursor & retract arm into right edge
+                            robotArmOverlay.classList.remove("is-grabbing");
+                            document.body.classList.remove("cursor-hover");
+                            mouseX = startX;
+                            mouseY = startY;
+                            ringX = startX;
+                            ringY = startY;
+
+                            setTimeout(() => {
+                              robotArmOverlay.style.transition = "transform 0.48s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.3s ease";
+                              robotArmOverlay.classList.remove("is-visible");
+                              robotArmOverlay.style.transform = `translate3d(${window.innerWidth + 30}px, ${startY - 50}px, 0)`;
+                              isRobotCarrying = false;
+                            }, 200);
+                          }
+                        };
+                        requestAnimationFrame(returnStep);
+                      }, 180);
+                    }
+                  };
+                  requestAnimationFrame(scrollStep);
+                }, 160);
+              }
+            };
+            requestAnimationFrame(pullStep);
+          }, 200);
+        }, 520);
+      });
+    }
 
     document.addEventListener("mouseleave", () => {
       cursorDot.style.opacity = "0";

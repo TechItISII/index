@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Social Hub | Tech It ISII #25074</title>
+  <meta name="description" content="Latest 3 YouTube videos and Instagram posts from Tech It ISII #25074 — ISII Guglielmo Marconi, Piacenza." />
+  <link rel="icon" type="image/png" href="IMG/logo-emblem.png" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Orbitron:wght@600;700;800;900&family=Rajdhani:wght@500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+  <div class="cursor-dot" id="cursorDot"></div>
+  <div class="cursor-ring" id="cursorRing"></div>
+  <div class="noise-overlay"></div>
+
+  <!-- NAV -->
+  <nav class="navbar scrolled" id="navbar">
+    <a href="index.html" class="nav-logo" aria-label="Tech It ISII Home">
+      <img src="IMG/logo-emblem.png" alt="Tech It ISII Cyber Wolf Logo" class="nav-emblem" />
+      <div class="nav-brand-text">
+        <span class="logo-text">TECH IT <span class="logo-accent">ISII</span></span>
+        <span class="logo-sub">#25074 · PIACENZA</span>
+      </div>
+    </a>
+
+    <ul class="nav-links">
+      <li><a href="index.html#hero" class="nav-link" data-index="01">HOME</a></li>
+      <li><a href="index.html#about" class="nav-link" data-index="02">IDENTITY</a></li>
+      <li><a href="index.html#robot" class="nav-link" data-index="03">ROBOT</a></li>
+      <li><a href="index.html#team" class="nav-link" data-index="04">ROSTER</a></li>
+      <li><a href="index.html#stagioni" class="nav-link" data-index="05">SEASONS</a></li>
+      <li><a href="blog.html" class="nav-link" data-index="06">BLOG</a></li>
+      <li><a href="social.html" class="nav-link active-nav" data-index="07">SOCIAL</a></li>
+      <li><a href="index.html#contatti" class="nav-link cta-nav" data-index="08">CONTACT</a></li>
+      <li class="nav-auth-item" id="navAuthSlot">
+        <a href="admin.html" class="nav-login-btn">LOGIN</a>
+      </li>
+    </ul>
+
+    <button class="nav-toggle" id="navToggle" aria-label="Menu" aria-expanded="false">
+      <span></span><span></span><span></span>
+    </button>
+  </nav>
+
+  <main class="blog-page">
+    <section class="blog-hero">
+      <div class="container">
+        <div class="section-label">// SOCIAL RADAR · @TECHITISII</div>
+        <h1 class="section-title">Social <em>Hub</em></h1>
+        <p class="blog-subtitle">
+          Latest 3 dispatches from our official YouTube channel and Instagram profile in Piacenza.
+        </p>
+      </div>
+    </section>
+
+    <!-- YOUTUBE LATEST 3 -->
+    <section class="social-hub-section">
+      <div class="container">
+        <div class="social-feed-card">
+          <div class="social-feed-head">
+            <div>
+              <div class="section-label">// YOUTUBE · @TECHITISII</div>
+              <h2 class="social-feed-title">Latest 3 <em>YouTube</em> Videos</h2>
+            </div>
+            <a href="https://www.youtube.com/@TechItISII" target="_blank" rel="noopener noreferrer" class="btn btn-ghost btn-sm">Open YouTube Channel ↗</a>
+          </div>
+          <div class="social-3-grid" id="youtubeGrid">
+            <div class="blog-empty">Loading YouTube videos...</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- INSTAGRAM LATEST 3 -->
+    <section class="social-hub-section" style="margin-top:2.5rem;">
+      <div class="container">
+        <div class="social-feed-card">
+          <div class="social-feed-head">
+            <div>
+              <div class="section-label">// INSTAGRAM · @TECH_IT_ISII</div>
+              <h2 class="social-feed-title">Latest 3 <em>Instagram</em> Posts</h2>
+            </div>
+            <a href="https://www.instagram.com/tech_it_isii?igsh=czV2NGNjMWVxeXBp" target="_blank" rel="noopener noreferrer" class="btn btn-ghost btn-sm">Open Instagram Profile ↗</a>
+          </div>
+          <div class="social-3-grid" id="instagramGrid">
+            <div class="blog-empty">Loading Instagram posts...</div>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- FOOTER -->
+  <footer class="footer">
+    <div class="container">
+      <div class="footer-top">
+        <div class="footer-brand">
+          <div class="footer-logo-line">
+            <span class="logo-text">TECH IT <span class="logo-accent">ISII</span></span>
+            <span class="logo-num footer-number"><span class="num-green">25</span><span class="num-white">0</span><span class="num-red">74</span></span>
+          </div>
+          <p>FIRST Tech Challenge · ISII "Guglielmo Marconi" · Piacenza, Italy</p>
+        </div>
+        <div class="footer-links">
+          <a href="index.html">Home</a>
+          <a href="blog.html">Blog</a>
+          <a href="admin.html">Admin 🔒</a>
+          <a href="https://www.firstinspires.org" target="_blank" rel="noopener noreferrer">FIRST Inspires ↗</a>
+        </div>
+      </div>
+      <div class="footer-bottom">
+        <span>© 2026–27 Tech It ISII #25074 · Piacenza</span>
+        <span class="footer-ftc">Built for FIRST Tech Challenge</span>
+      </div>
+    </div>
+  </footer>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="supabase-config.js"></script>
+  <script src="script.js"></script>
+  <script src="social.js"></script>
+</body>
+</html>
