@@ -600,15 +600,27 @@
 
       <!-- Map -->
       <div class="map-wrapper">
+        <div class="hud-corner tl"></div>
+        <div class="hud-corner tr"></div>
+        <div class="hud-corner bl"></div>
+        <div class="hud-corner br"></div>
         <div class="map-header">
-          <span>📍 HQ // ISII "Guglielmo Marconi" — Via IV Novembre 122, Piacenza, Italy</span>
-          <span class="map-coords">45.0448° N, 9.6865° E</span>
+          <div class="map-title-group">
+            <span class="status-pulse"></span>
+            <span>HQ RADAR // ISII "Guglielmo Marconi" — Piacenza, Italy</span>
+          </div>
+          <div class="map-meta-group">
+            <span class="map-coords">45.0448° N, 9.6865° E</span>
+            <a href="https://maps.google.com/?q=Istituto+Superiore+di+Istruzione+Industriale+G.+Marconi+Piacenza" target="_blank" rel="noopener noreferrer" class="map-open-link">OPEN MAPS ↗</a>
+          </div>
         </div>
-        <iframe
-          src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d2819.017089907172!2d9.686506776341458!3d45.04487506131897!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x4780dd5103c85835%3A0x78e7bf456667fbaf!2sIstituto%20Superiore%20di%20Istruzione%20Industriale%20G.%20Marconi!5e0!3m2!1sit!2sit!4v1773677823845!5m2!1sit!2sit"
-          allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade"
-          title="Location ISII G. Marconi Piacenza">
-        </iframe>
+        <div class="map-frame-box" id="mapFrameBox">
+          <iframe
+            src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d2819.017089907172!2d9.686506776341458!3d45.04487506131897!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x4780dd5103c85835%3A0x78e7bf456667fbaf!2sIstituto%20Superiore%20di%20Istruzione%20Industriale%20G.%20Marconi!5e0!3m2!1sit!2sit!4v1773677823845!5m2!1sit!2sit"
+            allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade"
+            title="Location ISII G. Marconi Piacenza">
+          </iframe>
+        </div>
       </div>
     </div>
   </section>
@@ -626,18 +638,19 @@
           <p>FIRST Tech Challenge · ISII "Guglielmo Marconi" · Piacenza, Italy</p>
         </div>
         <div class="footer-links">
-          <a href="blog.html">Blog</a>
-          <a href="admin.html">Admin 🔒</a>
-          <a href="https://www.firstinspires.org" target="_blank" rel="noopener noreferrer">FIRST Inspires ↗</a>
-          <a href="https://github.com/techitisii" target="_blank" rel="noopener noreferrer">GitHub ↗</a>
-          <a href="#hero" id="backToTopBtn">Back to top ↑</a>
+          <a href="https://www.firstinspires.org" target="_blank" rel="noopener noreferrer" class="footer-ext-btn">FIRST Inspires ↗</a>
+          <a href="https://github.com/techitisii" target="_blank" rel="noopener noreferrer" class="footer-ext-btn">GitHub ↗</a>
+          <a href="#hero" id="backToTopBtn" class="footer-top-btn">Back to top ↑</a>
         </div>
       </div>
       <div class="footer-bottom">
         <span>© 2026–27 Tech It ISII #25074 · Piacenza</span>
         <span class="footer-ftc">Built for FIRST Tech Challenge</span>
         <div class="easter-egg-container">
-          <span id="EasterEgg-trigger" class="EasterEgg-text">Coffee?</span>
+          <button type="button" id="EasterEgg-trigger" class="lupa-easter-egg">
+            <span class="lupa-ee-dot"></span>
+            <span id="lupaEeText">LUPA_DIAGNOSTIC // ?</span>
+          </button>
         </div>
       </div>
     </div>

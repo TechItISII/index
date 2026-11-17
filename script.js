@@ -131,8 +131,12 @@ document.addEventListener("DOMContentLoaded", () => {
     if (!clickable) return;
 
     if (!isFinePointer) {
-      // On menu toggle & account trigger: flash crosshair reticle pulse instead of TARGET ACQUIRED
-      if (clickable.id === "navToggle" || clickable.id === "navUserTrigger") {
+      // On account trigger: open/close cleanly without crosshair or TARGET ACQUIRED
+      if (clickable.id === "navUserTrigger") {
+        return;
+      }
+      // On menu toggle: flash crosshair reticle pulse instead of TARGET ACQUIRED
+      if (clickable.id === "navToggle") {
         clickable.classList.remove("is-btn-crosshair");
         clickable.offsetHeight;
         clickable.classList.add("is-btn-crosshair");
@@ -161,13 +165,13 @@ document.addEventListener("DOMContentLoaded", () => {
     window.addEventListener("mousemove", (e) => {
       mouseX = e.clientX;
       mouseY = e.clientY;
-      if (isRobotCarrying || document.body.classList.contains("cursor-in-portal")) return;
+      if (isRobotCarrying || document.body.classList.contains("cursor-in-portal") || document.body.classList.contains("cursor-sucking")) return;
       if (!hasMoved) {
         hasMoved = true;
         cursorDot.style.opacity = "1";
         cursorRing.style.opacity = "1";
       }
-      const pos = `translate3d(${mouseX}px, ${mouseY}px, 0) translate(-50%, -50%)`;
+      const pos = `translate3d(${mouseX}px, ${mouseY}px, 0)`;
       cursorDot.style.transform = pos;
       cursorRing.style.transform = pos;
     });
@@ -183,10 +187,18 @@ document.addEventListener("DOMContentLoaded", () => {
       }
     });
 
-    const interactables = document.querySelectorAll("a, button, input, textarea, .about-card, .member-card, .esports-crest-frame, .hero-number");
-    interactables.forEach(el => {
-      el.addEventListener("mouseenter", () => document.body.classList.add("cursor-hover"));
-      el.addEventListener("mouseleave", () => document.body.classList.remove("cursor-hover"));
+    const hoverSelector = "a, button, input, textarea, select, .about-card, .member-card, .blog-card, .esports-crest-frame, .hero-number, .roster-tab";
+    document.addEventListener("mouseover", (e) => {
+      if (e.target.closest(hoverSelector)) {
+        document.body.classList.add("cursor-hover");
+      }
+    });
+    document.addEventListener("mouseout", (e) => {
+      const fromEl = e.target.closest(hoverSelector);
+      const toEl = e.relatedTarget?.closest ? e.relatedTarget.closest(hoverSelector) : null;
+      if (fromEl && !toEl && !isRobotCarrying) {
+        document.body.classList.remove("cursor-hover");
+      }
     });
   }
 
@@ -201,7 +213,7 @@ document.addEventListener("DOMContentLoaded", () => {
           mouseX = x;
           mouseY = y;
           hasMoved = true;
-          const pos = `translate3d(${x}px, ${y}px, 0) translate(-50%, -50%)`;
+          const pos = `translate3d(${x}px, ${y}px, 0)`;
           cursorDot.style.transform = pos;
           cursorRing.style.transform = pos;
           document.body.classList.add("cursor-in-portal");
@@ -242,7 +254,7 @@ document.addEventListener("DOMContentLoaded", () => {
             mouseX = parsed.x;
             mouseY = parsed.y;
             hasMoved = true;
-            const pos = `translate3d(${mouseX}px, ${mouseY}px, 0) translate(-50%, -50%)`;
+            const pos = `translate3d(${mouseX}px, ${mouseY}px, 0)`;
             cursorDot.style.opacity = "1";
             cursorRing.style.opacity = "1";
             cursorDot.style.transform = pos;
@@ -257,9 +269,26 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   // Directional Smooth Scroll + Robotic Arm (Desktop) + Air Flow (Desktop & Mobile)
-  const robotArmOverlay = document.getElementById("robotArmOverlay");
+  let robotArmOverlay = document.getElementById("robotArmOverlay");
+  if (!robotArmOverlay && isFinePointer) {
+    robotArmOverlay = document.createElement("div");
+    robotArmOverlay.id = "robotArmOverlay";
+    robotArmOverlay.className = "robot-arm-overlay";
+    robotArmOverlay.setAttribute("aria-hidden", "true");
+    robotArmOverlay.innerHTML = `
+      <svg class="robot-arm-svg" viewBox="0 0 1600 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <rect x="54" y="42" width="1546" height="16" rx="4" fill="#121624" stroke="#FFFFFF" stroke-width="2"/>
+        <rect x="64" y="47" width="1536" height="6" rx="2" fill="#E11D48" opacity="0.85"/>
+        <circle cx="54" cy="50" r="14" fill="#0B0E16" stroke="#FF1E38" stroke-width="2.5"/>
+        <circle cx="54" cy="50" r="5" fill="#FFFFFF"/>
+        <path class="claw-top" d="M46 38 L26 18 L8 28 L14 38 L24 32 L38 44 Z" fill="#181E2E" stroke="#FFFFFF" stroke-width="2" stroke-linejoin="round"/>
+        <path class="claw-bottom" d="M46 62 L26 82 L8 72 L14 62 L24 68 L38 56 Z" fill="#181E2E" stroke="#FF1E38" stroke-width="2" stroke-linejoin="round"/>
+      </svg>
+    `;
+    document.body.appendChild(robotArmOverlay);
+  }
 
-  const runDirectionalScroll = (targetY, clickX, clickY) => {
+  const runDirectionalScroll = (targetY, clickX, clickY, withAir = true) => {
     const startScroll = window.scrollY;
     const distance = targetY - startScroll;
     if (Math.abs(distance) < 4) return;
@@ -272,8 +301,10 @@ document.addEventListener("DOMContentLoaded", () => {
     const startAirScroll = (onDone) => {
       isAnimatingScroll = true;
       document.documentElement.style.scrollBehavior = "auto";
-      airSpeedOverlay.classList.toggle("is-down", isGoingDown);
-      airSpeedOverlay.classList.add("is-active");
+      if (withAir) {
+        airSpeedOverlay.classList.toggle("is-down", isGoingDown);
+        airSpeedOverlay.classList.add("is-active");
+      }
 
       const scrollStart = performance.now();
       const scrollStep = (tNow) => {
@@ -311,7 +342,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const CLAW_CENTER_Y = 50;
 
     const placeArmAndCursor = (x, y) => {
-      const cPos = `translate3d(${x}px, ${y}px, 0) translate(-50%, -50%)`;
+      const cPos = `translate3d(${x}px, ${y}px, 0)`;
       cursorDot.style.transform = cPos;
       cursorRing.style.transform = cPos;
       robotArmOverlay.style.transform = `translate3d(${x - CLAW_CENTER_X}px, ${y - CLAW_CENTER_Y}px, 0)`;
@@ -402,16 +433,18 @@ document.addEventListener("DOMContentLoaded", () => {
     const href = link.getAttribute("href");
     if (!href || href.startsWith("mailto:") || href.startsWith("tel:") || href.startsWith("http")) return;
 
-    // Same-page hash link (e.g. #hero, #about, #robot, #team, #stagioni, #contatti)
+    // Same-page hash link (e.g. #hero, #top, #about, #robot, #team, #stagioni, #contatti)
     if (href.startsWith("#")) {
-      const targetEl = document.querySelector(href);
+      const isTopLink = href === "#hero" || href === "#top";
+      const targetEl = isTopLink ? document.body : document.querySelector(href);
       if (!targetEl) return;
       e.preventDefault();
       const maxScroll = document.documentElement.scrollHeight - window.innerHeight;
-      const targetY = href === "#hero"
+      const targetY = isTopLink
         ? 0
         : Math.max(0, Math.min(targetEl.getBoundingClientRect().top + window.scrollY - 72, maxScroll));
-      runDirectionalScroll(targetY, e.clientX || window.innerWidth * 0.5, e.clientY || window.innerHeight * 0.5);
+      const fromMobileMenu = !isFinePointer && Boolean(navLinks && navLinks.classList.contains("active"));
+      runDirectionalScroll(targetY, e.clientX || window.innerWidth * 0.5, e.clientY || window.innerHeight * 0.5, !fromMobileMenu);
       return;
     }
 
@@ -913,23 +946,104 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
-  // 8. EASTER EGG
-  const EasterEggTrigger = document.getElementById('EasterEgg-trigger');
-  if (EasterEggTrigger) {
-    let isActive = true;
-    EasterEggTrigger.addEventListener('click', () => {
-      if (isActive) {
-        EasterEggTrigger.textContent = 'No coffee anymore =,)';
-        EasterEggTrigger.classList.add('EasterEgg-active');
-      } else {
-        EasterEggTrigger.textContent = 'plz give us coffee';
-        EasterEggTrigger.classList.remove('EasterEgg-active');
+  // 9. MAP BLACK HOLE HOVER (eats crosshair when entering map, spits it back out when leaving)
+  const mapFrameBox = document.getElementById("mapFrameBox");
+  if (mapFrameBox && isFinePointer) {
+    let mapPortalTimer1 = null;
+    let mapPortalTimer2 = null;
+
+    const clearMapTimers = () => {
+      clearTimeout(mapPortalTimer1);
+      clearTimeout(mapPortalTimer2);
+    };
+
+    mapFrameBox.addEventListener("mouseenter", (e) => {
+      clearMapTimers();
+      document.body.classList.remove("cursor-spitting");
+      const ex = e.clientX || mouseX;
+      const ey = e.clientY || mouseY;
+      mouseX = ex;
+      mouseY = ey;
+      if (cursorDot && cursorRing) {
+        const pos = `translate3d(${ex}px, ${ey}px, 0)`;
+        cursorDot.style.transform = pos;
+        cursorRing.style.transform = pos;
       }
-      EasterEggTrigger.style.transform = 'scale(0.85)';
+      cyberPortal.style.left = `${ex}px`;
+      cyberPortal.style.top = `${ey}px`;
+      cyberPortal.classList.add("is-open");
+      document.body.classList.add("cursor-sucking");
+
+      mapPortalTimer1 = setTimeout(() => {
+        document.body.classList.add("cursor-in-portal");
+        document.body.classList.remove("cursor-sucking");
+        cyberPortal.classList.remove("is-open");
+      }, 260);
+    });
+
+    mapFrameBox.addEventListener("mouseleave", (e) => {
+      clearMapTimers();
+      document.body.classList.remove("cursor-sucking");
+
+      const lx = (e.clientX > 0 || e.clientY > 0) ? e.clientX : mouseX;
+      const ly = (e.clientX > 0 || e.clientY > 0) ? e.clientY : mouseY;
+      mouseX = lx;
+      mouseY = ly;
+      hasMoved = true;
+
+      if (cursorDot && cursorRing) {
+        const pos = `translate3d(${lx}px, ${ly}px, 0)`;
+        cursorDot.style.transform = pos;
+        cursorRing.style.transform = pos;
+      }
+
+      cyberPortal.style.left = `${lx}px`;
+      cyberPortal.style.top = `${ly}px`;
+      cyberPortal.classList.add("is-open");
+
+      mapPortalTimer1 = setTimeout(() => {
+        const curX = mouseX;
+        const curY = mouseY;
+        cyberPortal.style.left = `${curX}px`;
+        cyberPortal.style.top = `${curY}px`;
+        if (cursorDot && cursorRing) {
+          const pos = `translate3d(${curX}px, ${curY}px, 0)`;
+          cursorDot.style.transform = pos;
+          cursorRing.style.transform = pos;
+          cursorDot.style.opacity = "1";
+          cursorRing.style.opacity = "1";
+        }
+        document.body.classList.remove("cursor-in-portal");
+        document.body.classList.add("cursor-spitting");
+
+        mapPortalTimer2 = setTimeout(() => {
+          document.body.classList.remove("cursor-spitting");
+          cyberPortal.classList.remove("is-open");
+        }, 260);
+      }, 120);
+    });
+  }
+
+  // 10. CYBER-LUPA EASTER EGG
+  const EasterEggTrigger = document.getElementById("EasterEgg-trigger");
+  const lupaEeText = document.getElementById("lupaEeText");
+  if (EasterEggTrigger && lupaEeText) {
+    const eeMessages = [
+      "LUPA_DIAGNOSTIC // ?",
+      "⚡ OVERCLOCKING REV HUB... 100%",
+      "🐺 LUPA MODE: PIACENZA'S BEAST",
+      "🔩 ZERO LOOSE SCREWS (PROBABLY)",
+      "🏆 TARGET: BIOBUZZ™ FINALS"
+    ];
+    let eeStep = 0;
+    EasterEggTrigger.addEventListener("click", () => {
+      eeStep = (eeStep + 1) % eeMessages.length;
+      lupaEeText.textContent = eeMessages[eeStep];
+      EasterEggTrigger.classList.toggle("EasterEgg-active", eeStep !== 0);
+      EasterEggTrigger.style.transform = "scale(0.94)";
       setTimeout(() => {
-        EasterEggTrigger.style.transform = isActive ? 'scale(1.25) rotate(8deg)' : 'scale(1)';
-      }, 50);
-      isActive = !isActive;
+        EasterEggTrigger.style.transform = eeStep !== 0 ? "scale(1.04)" : "scale(1)";
+      }, 90);
     });
   }
 });
