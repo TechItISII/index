@@ -1,166 +1,129 @@
 document.addEventListener("DOMContentLoaded", () => {
 
-  // 1. CUSTOM CURSOR (desktop fine pointer)
+  // 1. CUSTOM CURSOR, TARGET ACQUIRED, PORTAL & ROBOTIC ARM (ALL PAGES + MOBILE)
   const cursorDot = document.getElementById("cursorDot");
   const cursorRing = document.getElementById("cursorRing");
+  const isFinePointer = window.matchMedia("(pointer: fine)").matches;
 
-  if (cursorDot && cursorRing && window.matchMedia("(pointer: fine)").matches) {
-    let mouseX = -100, mouseY = -100;
-    let ringX = -100, ringY = -100;
-    let hasMoved = false;
-    let isRobotCarrying = false;
+  let mouseX = -100, mouseY = -100;
+  let hasMoved = false;
+  let isRobotCarrying = false;
+  let isAnimatingScroll = false;
 
+  // Ensure Air Speed Overlay exists on every page (index, blog, social, admin)
+  let airSpeedOverlay = document.getElementById("airSpeedOverlay");
+  if (!airSpeedOverlay) {
+    airSpeedOverlay = document.createElement("div");
+    airSpeedOverlay.id = "airSpeedOverlay";
+    airSpeedOverlay.className = "air-speed-overlay";
+    airSpeedOverlay.setAttribute("aria-hidden", "true");
+    airSpeedOverlay.innerHTML = `
+      <span class="wind-streak" style="--x:6%;--h:130px;--d:0.28s;--del:0s;"></span>
+      <span class="wind-streak is-red" style="--x:13%;--h:190px;--d:0.34s;--del:0.08s;"></span>
+      <span class="wind-streak" style="--x:22%;--h:110px;--d:0.26s;--del:0.14s;"></span>
+      <span class="wind-streak" style="--x:31%;--h:170px;--d:0.32s;--del:0.04s;"></span>
+      <span class="wind-streak is-red" style="--x:44%;--h:140px;--d:0.29s;--del:0.12s;"></span>
+      <span class="wind-streak" style="--x:58%;--h:200px;--d:0.35s;--del:0.02s;"></span>
+      <span class="wind-streak is-red" style="--x:69%;--h:120px;--d:0.27s;--del:0.1s;"></span>
+      <span class="wind-streak" style="--x:79%;--h:180px;--d:0.33s;--del:0.06s;"></span>
+      <span class="wind-streak" style="--x:88%;--h:140px;--d:0.28s;--del:0.15s;"></span>
+      <span class="wind-streak is-red" style="--x:94%;--h:160px;--d:0.31s;--del:0.05s;"></span>
+    `;
+    document.body.appendChild(airSpeedOverlay);
+  }
+
+  // Ensure Cyber Portal element exists on every page
+  const cyberPortal = document.createElement("div");
+  cyberPortal.className = "cyber-portal";
+  cyberPortal.setAttribute("aria-hidden", "true");
+  document.body.appendChild(cyberPortal);
+
+  // "TARGET ACQUIRED" HUD tag (works on BOTH desktop & mobile)
+  const targetTag = document.createElement("div");
+  targetTag.className = "cursor-target-acquired";
+  targetTag.textContent = "TARGET ACQUIRED";
+  document.body.appendChild(targetTag);
+
+  let targetTagTimer = null;
+  let glitchInterval = null;
+  const GLITCH_FRAMES = ["T▓RGET ░CQ█IRED", "T?RGET ???", "S█GNAL LOST // ???", "T4RG3T ▓CQU1R3D"];
+
+  const showTargetAcquired = (x, y, durationMs = 700, offsetY = 28) => {
+    clearInterval(glitchInterval);
+    targetTag.classList.remove("is-glitched");
+    targetTag.textContent = "TARGET ACQUIRED";
+
+    const safeX = Math.max(85, Math.min(x, window.innerWidth - 85));
+    const safeY = Math.min(y + offsetY, window.innerHeight - 36);
+    targetTag.style.left = `${safeX}px`;
+    targetTag.style.top = `${safeY}px`;
+    targetTag.classList.add("is-shown");
+
+    clearTimeout(targetTagTimer);
+    targetTagTimer = setTimeout(() => {
+      targetTag.classList.remove("is-shown");
+    }, durationMs);
+  };
+
+  const showGlitchedTarget = (x, y, durationMs = 950) => {
+    clearInterval(glitchInterval);
+    const safeX = Math.max(85, Math.min(x, window.innerWidth - 85));
+    const safeY = Math.min(y + 58, window.innerHeight - 36);
+    targetTag.style.left = `${safeX}px`;
+    targetTag.style.top = `${safeY}px`;
+    targetTag.classList.add("is-shown", "is-glitched");
+
+    let idx = 0;
+    targetTag.textContent = GLITCH_FRAMES[0];
+    glitchInterval = setInterval(() => {
+      idx = (idx + 1) % GLITCH_FRAMES.length;
+      targetTag.textContent = GLITCH_FRAMES[idx];
+    }, 95);
+
+    clearTimeout(targetTagTimer);
+    targetTagTimer = setTimeout(() => {
+      clearInterval(glitchInterval);
+      targetTag.classList.remove("is-shown", "is-glitched");
+      targetTag.textContent = "TARGET ACQUIRED";
+    }, durationMs);
+  };
+
+  document.addEventListener("pointerdown", (e) => {
+    const clickable = e.target.closest("a, button, .btn, .roster-tab, .blog-card, input[type='submit']");
+    if (!clickable) return;
+
+    showTargetAcquired(e.clientX, e.clientY, 700);
+    try {
+      sessionStorage.setItem(
+        "techit_target_acquired",
+        JSON.stringify({ x: e.clientX, y: e.clientY, expires: Date.now() + 1100 })
+      );
+    } catch {
+      // Ignore storage errors
+    }
+  });
+
+  if (cursorDot && cursorRing && isFinePointer) {
     window.addEventListener("mousemove", (e) => {
       mouseX = e.clientX;
       mouseY = e.clientY;
-      if (isRobotCarrying) return;
+      if (isRobotCarrying || document.body.classList.contains("cursor-in-portal")) return;
       if (!hasMoved) {
-        ringX = mouseX;
-        ringY = mouseY;
         hasMoved = true;
         cursorDot.style.opacity = "1";
         cursorRing.style.opacity = "1";
       }
-      cursorDot.style.transform = `translate3d(${mouseX}px, ${mouseY}px, 0) translate(-50%, -50%)`;
+      const pos = `translate3d(${mouseX}px, ${mouseY}px, 0) translate(-50%, -50%)`;
+      cursorDot.style.transform = pos;
+      cursorRing.style.transform = pos;
     });
-
-    function animateCursor() {
-      if (!isRobotCarrying) {
-        const ease = 0.18;
-        ringX += (mouseX - ringX) * ease;
-        ringY += (mouseY - ringY) * ease;
-        cursorRing.style.transform = `translate3d(${ringX}px, ${ringY}px, 0) translate(-50%, -50%)`;
-      }
-      requestAnimationFrame(animateCursor);
-    }
-    animateCursor();
-
-    // Robotic Arm Back-to-Top Animation (from right edge + air-cutting speed lines)
-    const backToTopBtn = document.getElementById("backToTopBtn");
-    const robotArmOverlay = document.getElementById("robotArmOverlay");
-    const airSpeedOverlay = document.getElementById("airSpeedOverlay");
-
-    if (backToTopBtn && robotArmOverlay) {
-      backToTopBtn.addEventListener("click", (e) => {
-        if (isRobotCarrying) {
-          e.preventDefault();
-          return;
-        }
-        e.preventDefault();
-        isRobotCarrying = true;
-
-        const startX = hasMoved ? mouseX : window.innerWidth * 0.5;
-        const startY = hasMoved ? mouseY : window.innerHeight - 90;
-        const holdX = Math.min(startX + 110, window.innerWidth - 65);
-        const startScroll = window.scrollY;
-
-        // Claw tip sits at (22, 50) inside the 1600x100 SVG
-        const placeArmAndCursor = (x, y) => {
-          cursorDot.style.transform = `translate3d(${x}px, ${y}px, 0) translate(-50%, -50%)`;
-          cursorRing.style.transform = `translate3d(${x}px, ${y}px, 0) translate(-50%, -50%)`;
-          robotArmOverlay.style.transform = `translate3d(${x - 22}px, ${y - 50}px, 0)`;
-        };
-
-        // 1. Emerge horizontally from the right edge to the cursor (smooth & deliberate)
-        robotArmOverlay.style.transition = "none";
-        robotArmOverlay.style.transform = `translate3d(${window.innerWidth + 30}px, ${startY - 50}px, 0)`;
-        robotArmOverlay.classList.add("is-visible");
-        robotArmOverlay.offsetHeight;
-
-        robotArmOverlay.style.transition = "transform 0.52s cubic-bezier(0.22, 1, 0.36, 1), opacity 0.25s ease";
-        robotArmOverlay.style.transform = `translate3d(${startX - 22}px, ${startY - 50}px, 0)`;
-
-        setTimeout(() => {
-          // 2. Grab cursor, pause briefly, then pull slightly right
-          robotArmOverlay.classList.add("is-grabbing");
-          document.body.classList.add("cursor-hover");
-
-          setTimeout(() => {
-            const pullDuration = 380;
-            const pullStart = performance.now();
-            const pullStep = (now) => {
-              const p = Math.min((now - pullStart) / pullDuration, 1);
-              const easedP = 1 - Math.pow(1 - p, 3);
-              const curX = startX + (holdX - startX) * easedP;
-              placeArmAndCursor(curX, startY);
-
-              if (p < 1) {
-                requestAnimationFrame(pullStep);
-              } else {
-                // Wait until settled on the right before starting upward scroll
-                setTimeout(() => {
-                  // 3. Scroll to top with cartoon rocket wind streaks
-                  if (airSpeedOverlay) airSpeedOverlay.classList.add("is-active");
-                  document.body.classList.add("is-air-rushing");
-
-                  const scrollDuration = 950;
-                  const scrollStart = performance.now();
-                  const easeInOutCubic = (t) =>
-                    t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
-
-                  const scrollStep = (tNow) => {
-                    const elapsed = tNow - scrollStart;
-                    const progress = Math.min(elapsed / scrollDuration, 1);
-                    const eased = easeInOutCubic(progress);
-                    window.scrollTo(0, startScroll * (1 - eased));
-
-                    if (progress < 1) {
-                      requestAnimationFrame(scrollStep);
-                    } else {
-                      window.scrollTo(0, 0);
-                      if (airSpeedOverlay) airSpeedOverlay.classList.remove("is-active");
-                      document.body.classList.remove("is-air-rushing");
-
-                      // Wait until screen is completely still before returning cursor
-                      setTimeout(() => {
-                        // 4. Return cursor smoothly to exact original screen position (startX, startY)
-                        const returnDuration = 380;
-                        const returnStart = performance.now();
-                        const returnStep = (rNow) => {
-                          const rp = Math.min((rNow - returnStart) / returnDuration, 1);
-                          const easedR = 1 - Math.pow(1 - rp, 3);
-                          const rx = holdX + (startX - holdX) * easedR;
-                          placeArmAndCursor(rx, startY);
-
-                          if (rp < 1) {
-                            requestAnimationFrame(returnStep);
-                          } else {
-                            // 5. Release cursor & retract arm into right edge
-                            robotArmOverlay.classList.remove("is-grabbing");
-                            document.body.classList.remove("cursor-hover");
-                            mouseX = startX;
-                            mouseY = startY;
-                            ringX = startX;
-                            ringY = startY;
-
-                            setTimeout(() => {
-                              robotArmOverlay.style.transition = "transform 0.48s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.3s ease";
-                              robotArmOverlay.classList.remove("is-visible");
-                              robotArmOverlay.style.transform = `translate3d(${window.innerWidth + 30}px, ${startY - 50}px, 0)`;
-                              isRobotCarrying = false;
-                            }, 200);
-                          }
-                        };
-                        requestAnimationFrame(returnStep);
-                      }, 180);
-                    }
-                  };
-                  requestAnimationFrame(scrollStep);
-                }, 160);
-              }
-            };
-            requestAnimationFrame(pullStep);
-          }, 200);
-        }, 520);
-      });
-    }
 
     document.addEventListener("mouseleave", () => {
       cursorDot.style.opacity = "0";
       cursorRing.style.opacity = "0";
     });
     document.addEventListener("mouseenter", () => {
-      if (hasMoved) {
+      if (hasMoved && !document.body.classList.contains("cursor-in-portal")) {
         cursorDot.style.opacity = "1";
         cursorRing.style.opacity = "1";
       }
@@ -172,6 +135,298 @@ document.addEventListener("DOMContentLoaded", () => {
       el.addEventListener("mouseleave", () => document.body.classList.remove("cursor-hover"));
     });
   }
+
+  // Arrival from Black Hole Portal: open -> spit out cursor -> close & disappear
+  try {
+    const portalArrival = sessionStorage.getItem("techit_portal_arrival");
+    if (portalArrival) {
+      sessionStorage.removeItem("techit_portal_arrival");
+      const { x, y, expires } = JSON.parse(portalArrival);
+      if (expires > Date.now()) {
+        if (isFinePointer && cursorDot && cursorRing) {
+          mouseX = x;
+          mouseY = y;
+          hasMoved = true;
+          const pos = `translate3d(${x}px, ${y}px, 0) translate(-50%, -50%)`;
+          cursorDot.style.transform = pos;
+          cursorRing.style.transform = pos;
+          document.body.classList.add("cursor-in-portal");
+        }
+
+        // 1. Open black hole + show glitched interference tag underneath
+        cyberPortal.style.left = `${x}px`;
+        cyberPortal.style.top = `${y}px`;
+        cyberPortal.offsetHeight;
+        cyberPortal.classList.add("is-open");
+        showGlitchedTarget(x, y, 420);
+
+        // 2. Spit cursor back out with vortex pop + restore clean TARGET ACQUIRED below portal
+        setTimeout(() => {
+          if (cursorDot && cursorRing && isFinePointer) {
+            document.body.classList.remove("cursor-in-portal");
+            document.body.classList.add("cursor-spitting");
+            cursorDot.style.opacity = "1";
+            cursorRing.style.opacity = "1";
+            setTimeout(() => document.body.classList.remove("cursor-spitting"), 440);
+          }
+          showTargetAcquired(x, y, 700, 58);
+
+          // 3. Close black hole & disappear
+          setTimeout(() => {
+            cyberPortal.classList.remove("is-open");
+          }, 340);
+        }, 360);
+      }
+    } else {
+      const saved = sessionStorage.getItem("techit_target_acquired");
+      if (saved) {
+        sessionStorage.removeItem("techit_target_acquired");
+        const parsed = JSON.parse(saved);
+        const remaining = parsed.expires - Date.now();
+        if (remaining > 50) {
+          if (cursorDot && cursorRing && isFinePointer) {
+            mouseX = parsed.x;
+            mouseY = parsed.y;
+            hasMoved = true;
+            const pos = `translate3d(${mouseX}px, ${mouseY}px, 0) translate(-50%, -50%)`;
+            cursorDot.style.opacity = "1";
+            cursorRing.style.opacity = "1";
+            cursorDot.style.transform = pos;
+            cursorRing.style.transform = pos;
+          }
+          showTargetAcquired(parsed.x, parsed.y, remaining);
+        }
+      }
+    }
+  } catch {
+    // Ignore storage errors
+  }
+
+  // Directional Smooth Scroll + Robotic Arm (Desktop) + Air Flow (Desktop & Mobile)
+  const robotArmOverlay = document.getElementById("robotArmOverlay");
+
+  const runDirectionalScroll = (targetY, clickX, clickY) => {
+    const startScroll = window.scrollY;
+    const distance = targetY - startScroll;
+    if (Math.abs(distance) < 4) return;
+
+    const isGoingDown = distance > 0;
+    const scrollDuration = Math.min(1050, Math.max(550, Math.abs(distance) * 0.45));
+    const easeInOutCubic = (t) =>
+      t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
+
+    const startAirScroll = (onDone) => {
+      isAnimatingScroll = true;
+      airSpeedOverlay.classList.toggle("is-down", isGoingDown);
+      airSpeedOverlay.classList.add("is-active");
+      document.body.classList.add("is-air-rushing");
+
+      const scrollStart = performance.now();
+      const scrollStep = (tNow) => {
+        const progress = Math.min((tNow - scrollStart) / scrollDuration, 1);
+        const eased = easeInOutCubic(progress);
+        window.scrollTo(0, startScroll + distance * eased);
+
+        if (progress < 1) {
+          requestAnimationFrame(scrollStep);
+        } else {
+          window.scrollTo(0, targetY);
+          airSpeedOverlay.classList.remove("is-active", "is-down");
+          document.body.classList.remove("is-air-rushing");
+          isAnimatingScroll = false;
+          if (onDone) onDone();
+        }
+      };
+      requestAnimationFrame(scrollStep);
+    };
+
+    // Mobile / touch or pages without Robotic Arm: directional air-flow scroll
+    if (!isFinePointer || !cursorDot || !cursorRing || !robotArmOverlay) {
+      startAirScroll();
+      return;
+    }
+
+    if (isRobotCarrying) return;
+    isRobotCarrying = true;
+
+    const startX = hasMoved ? mouseX : clickX;
+    const startY = hasMoved ? mouseY : clickY;
+    const holdX = window.innerWidth - 36;
+    const offscreenX = window.innerWidth + 160;
+    const CLAW_CENTER_X = 18;
+    const CLAW_CENTER_Y = 50;
+
+    const placeArmAndCursor = (x, y) => {
+      const cPos = `translate3d(${x}px, ${y}px, 0) translate(-50%, -50%)`;
+      cursorDot.style.transform = cPos;
+      cursorRing.style.transform = cPos;
+      robotArmOverlay.style.transform = `translate3d(${x - CLAW_CENTER_X}px, ${y - CLAW_CENTER_Y}px, 0)`;
+    };
+
+    // 1. Arm enters smoothly from completely outside right edge
+    robotArmOverlay.style.transition = "none";
+    robotArmOverlay.style.transform = `translate3d(${offscreenX}px, ${startY - CLAW_CENTER_Y}px, 0)`;
+    robotArmOverlay.classList.add("is-visible");
+    robotArmOverlay.offsetHeight;
+
+    robotArmOverlay.style.transition = "transform 0.65s cubic-bezier(0.22, 1, 0.36, 1)";
+    robotArmOverlay.style.transform = `translate3d(${startX - CLAW_CENTER_X}px, ${startY - CLAW_CENTER_Y}px, 0)`;
+
+    setTimeout(() => {
+      // 2. Clamp claw shut onto cursor
+      robotArmOverlay.classList.add("is-grabbing");
+      document.body.classList.add("cursor-hover");
+
+      setTimeout(() => {
+        // CRITICAL: disable CSS transition so arm & cursor stay 100% locked in rAF
+        robotArmOverlay.style.transition = "none";
+        const pullStart = performance.now();
+        const pullDuration = 520;
+        const pullStep = (now) => {
+          const p = Math.min((now - pullStart) / pullDuration, 1);
+          const easedP = 1 - Math.pow(1 - p, 3);
+          placeArmAndCursor(startX + (holdX - startX) * easedP, startY);
+
+          if (p < 1) {
+            requestAnimationFrame(pullStep);
+          } else {
+            placeArmAndCursor(holdX, startY);
+            setTimeout(() => {
+              startAirScroll(() => {
+                setTimeout(() => {
+                  const returnStart = performance.now();
+                  const returnDuration = 520;
+                  const returnStep = (rNow) => {
+                    const rp = Math.min((rNow - returnStart) / returnDuration, 1);
+                    const easedR = 1 - Math.pow(1 - rp, 3);
+                    placeArmAndCursor(holdX + (startX - holdX) * easedR, startY);
+
+                    if (rp < 1) {
+                      requestAnimationFrame(returnStep);
+                    } else {
+                      placeArmAndCursor(startX, startY);
+                      robotArmOverlay.classList.remove("is-grabbing");
+                      document.body.classList.remove("cursor-hover");
+                      mouseX = startX;
+                      mouseY = startY;
+
+                      setTimeout(() => {
+                        robotArmOverlay.style.transition = "transform 0.6s cubic-bezier(0.4, 0, 0.2, 1)";
+                        robotArmOverlay.style.transform = `translate3d(${offscreenX}px, ${startY - CLAW_CENTER_Y}px, 0)`;
+                        setTimeout(() => {
+                          robotArmOverlay.classList.remove("is-visible");
+                          isRobotCarrying = false;
+                        }, 600);
+                      }, 240);
+                    }
+                  };
+                  requestAnimationFrame(returnStep);
+                }, 200);
+              });
+            }, 180);
+          }
+        };
+        requestAnimationFrame(pullStep);
+      }, 260);
+    }, 650);
+  };
+
+  // Intercept same-page anchor links & cross-page internal links (Portal)
+  document.addEventListener("click", (e) => {
+    const link = e.target.closest("a[href]");
+    if (!link || link.target === "_blank" || e.metaKey || e.ctrlKey || e.shiftKey) return;
+
+    const href = link.getAttribute("href");
+    if (!href || href.startsWith("mailto:") || href.startsWith("tel:") || href.startsWith("http")) return;
+
+    // Same-page hash link (e.g. #hero, #about, #robot, #team, #stagioni, #contatti)
+    if (href.startsWith("#")) {
+      const targetEl = document.querySelector(href);
+      if (!targetEl) return;
+      e.preventDefault();
+      const maxScroll = document.documentElement.scrollHeight - window.innerHeight;
+      const targetY = href === "#hero"
+        ? 0
+        : Math.max(0, Math.min(targetEl.getBoundingClientRect().top + window.scrollY - 72, maxScroll));
+      runDirectionalScroll(targetY, e.clientX || window.innerWidth * 0.5, e.clientY || window.innerHeight * 0.5);
+      return;
+    }
+
+    // Cross-page internal link (e.g. blog.html, social.html, admin.html, index.html) -> Cyber Portal
+    const [pagePart] = href.split("#");
+    const currentFile = window.location.pathname.split("/").pop() || "index.html";
+    if (pagePart && pagePart !== currentFile && /\.(html)$/i.test(pagePart)) {
+      e.preventDefault();
+      const px = e.clientX || window.innerWidth * 0.5;
+      const py = e.clientY || window.innerHeight * 0.5;
+
+      // 1. Open black hole + glitched interference tag underneath
+      cyberPortal.style.left = `${px}px`;
+      cyberPortal.style.top = `${py}px`;
+      cyberPortal.classList.add("is-open");
+      showGlitchedTarget(px, py, 1100);
+
+      try {
+        sessionStorage.setItem(
+          "techit_portal_arrival",
+          JSON.stringify({ x: px, y: py, expires: Date.now() + 3500 })
+        );
+      } catch {
+        // Ignore storage errors
+      }
+
+      // 2. Vortex-suck cursor into the black hole
+      setTimeout(() => {
+        if (isFinePointer) document.body.classList.add("cursor-sucking");
+
+        // 3. Close black hole after cursor is eaten
+        setTimeout(() => {
+          if (isFinePointer) document.body.classList.add("cursor-in-portal");
+          cyberPortal.classList.remove("is-open");
+
+          // 4. Open new page
+          setTimeout(() => {
+            window.location.href = href;
+          }, 340);
+        }, 440);
+      }, 340);
+    }
+  });
+
+  // Fast Scroll / iPhone Status-Bar Tap-to-Top Air Flow (Mobile & Desktop)
+  let lastScrollY = window.scrollY;
+  let lastScrollTime = performance.now();
+  let fastScrollTimer = null;
+
+  window.addEventListener("scroll", () => {
+    if (isAnimatingScroll) {
+      lastScrollY = window.scrollY;
+      lastScrollTime = performance.now();
+      return;
+    }
+    const now = performance.now();
+    const curY = window.scrollY;
+    const dy = curY - lastScrollY;
+    const dt = Math.max(now - lastScrollTime, 16);
+    const speed = Math.abs(dy) / dt;
+
+    if (speed > 2.2 && Math.abs(dy) > 35) {
+      airSpeedOverlay.classList.toggle("is-down", dy > 0);
+      airSpeedOverlay.classList.add("is-active");
+      document.body.classList.add("is-air-rushing");
+
+      clearTimeout(fastScrollTimer);
+      fastScrollTimer = setTimeout(() => {
+        if (!isAnimatingScroll) {
+          airSpeedOverlay.classList.remove("is-active", "is-down");
+          document.body.classList.remove("is-air-rushing");
+        }
+      }, 240);
+    }
+
+    lastScrollY = curY;
+    lastScrollTime = now;
+  }, { passive: true });
 
   // 2. NAVBAR & MOBILE MENU
   const navbar = document.getElementById("navbar");
