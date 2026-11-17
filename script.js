@@ -88,22 +88,52 @@ document.addEventListener("DOMContentLoaded", () => {
     }, durationMs);
   };
 
+  const triggerButtonTarget = (el, glitched = false, durationMs = 600) => {
+    if (!el) return;
+    el.classList.add("is-btn-target");
+    if (glitched) {
+      el.classList.add("is-btn-glitched");
+      let i = 0;
+      el.setAttribute("data-target-text", GLITCH_FRAMES[0]);
+      const iv = setInterval(() => {
+        i = (i + 1) % GLITCH_FRAMES.length;
+        el.setAttribute("data-target-text", GLITCH_FRAMES[i]);
+      }, 90);
+      setTimeout(() => {
+        clearInterval(iv);
+        el.classList.remove("is-btn-target", "is-btn-glitched");
+        el.removeAttribute("data-target-text");
+      }, durationMs);
+    } else {
+      el.classList.remove("is-btn-glitched");
+      el.setAttribute("data-target-text", "TARGET ACQUIRED");
+      setTimeout(() => {
+        el.classList.remove("is-btn-target");
+        el.removeAttribute("data-target-text");
+      }, durationMs);
+    }
+  };
+
+  const isCrossPageInternal = (el) => {
+    const a = el.closest("a[href]");
+    if (!a || a.target === "_blank") return false;
+    const href = a.getAttribute("href") || "";
+    if (!href || href.startsWith("#") || href.startsWith("mailto:") || href.startsWith("tel:") || href.startsWith("http")) {
+      return false;
+    }
+    const [pagePart] = href.split("#");
+    const currentFile = window.location.pathname.split("/").pop() || "index.html";
+    return Boolean(pagePart && pagePart !== currentFile && /\.html$/i.test(pagePart));
+  };
+
   document.addEventListener("pointerdown", (e) => {
     const clickable = e.target.closest("a, button, .btn, .roster-tab, .blog-card, input[type='submit']");
     if (!clickable) return;
 
     if (!isFinePointer) {
-      // On mobile: anchor TARGET ACQUIRED directly to the tapped button/element
-      const rect = clickable.getBoundingClientRect();
-      const bx = rect.left + rect.width / 2;
-      const by = rect.bottom + 8 > window.innerHeight - 36 ? rect.top - 34 : rect.bottom + 8;
-      targetTag.style.left = `${Math.max(85, Math.min(bx, window.innerWidth - 85))}px`;
-      targetTag.style.top = `${Math.max(12, by)}px`;
-      targetTag.classList.remove("is-glitched");
-      targetTag.textContent = "TARGET ACQUIRED";
-      targetTag.classList.add("is-shown");
-      clearTimeout(targetTagTimer);
-      targetTagTimer = setTimeout(() => targetTag.classList.remove("is-shown"), 650);
+      // On mobile: the button/logo itself transforms into TARGET ACQUIRED (glitched if changing page)
+      const crossPage = isCrossPageInternal(clickable);
+      triggerButtonTarget(clickable, crossPage, crossPage ? 420 : 600);
       return;
     }
 
@@ -232,9 +262,9 @@ document.addEventListener("DOMContentLoaded", () => {
 
     const startAirScroll = (onDone) => {
       isAnimatingScroll = true;
+      document.documentElement.style.scrollBehavior = "auto";
       airSpeedOverlay.classList.toggle("is-down", isGoingDown);
       airSpeedOverlay.classList.add("is-active");
-      document.body.classList.add("is-air-rushing");
 
       const scrollStart = performance.now();
       const scrollStep = (tNow) => {
@@ -246,8 +276,8 @@ document.addEventListener("DOMContentLoaded", () => {
           requestAnimationFrame(scrollStep);
         } else {
           window.scrollTo(0, targetY);
+          document.documentElement.style.scrollBehavior = "";
           airSpeedOverlay.classList.remove("is-active", "is-down");
-          document.body.classList.remove("is-air-rushing");
           isAnimatingScroll = false;
           if (onDone) onDone();
         }
@@ -367,11 +397,18 @@ document.addEventListener("DOMContentLoaded", () => {
       return;
     }
 
-    // Cross-page internal link -> Cyber Portal (desktop only; normal navigation on mobile)
+    // Cross-page internal link -> Cyber Portal on desktop, glitched button delay on mobile
     const [pagePart] = href.split("#");
     const currentFile = window.location.pathname.split("/").pop() || "index.html";
-    if (isFinePointer && pagePart && pagePart !== currentFile && /\.(html)$/i.test(pagePart)) {
+    if (pagePart && pagePart !== currentFile && /\.(html)$/i.test(pagePart)) {
       e.preventDefault();
+      if (!isFinePointer) {
+        triggerButtonTarget(link, true, 380);
+        setTimeout(() => {
+          window.location.href = href;
+        }, 320);
+        return;
+      }
       const px = e.clientX || window.innerWidth * 0.5;
       const py = e.clientY || window.innerHeight * 0.5;
 
@@ -408,48 +445,44 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   });
 
-  // Fast Scroll / iPhone Status-Bar Tap-to-Top Air Flow (Mobile & Desktop)
+  // Unified Passive Scroll Listener (Navbar + Fast-Scroll Air Flow)
+  const navbar = document.getElementById("navbar");
+  const navToggle = document.getElementById("navToggle");
+  const navLinks = document.querySelector(".nav-links");
+
   let lastScrollY = window.scrollY;
   let lastScrollTime = performance.now();
   let fastScrollTimer = null;
 
   window.addEventListener("scroll", () => {
+    const curY = window.scrollY;
+    if (navbar) navbar.classList.toggle("scrolled", curY > 50);
+
     if (isAnimatingScroll) {
-      lastScrollY = window.scrollY;
+      lastScrollY = curY;
       lastScrollTime = performance.now();
       return;
     }
+
     const now = performance.now();
-    const curY = window.scrollY;
     const dy = curY - lastScrollY;
     const dt = Math.max(now - lastScrollTime, 16);
     const speed = Math.abs(dy) / dt;
 
-    if (speed > 5.5 && Math.abs(dy) > 160) {
+    if (speed > 4.5 && Math.abs(dy) > 120) {
       airSpeedOverlay.classList.toggle("is-down", dy > 0);
       airSpeedOverlay.classList.add("is-active");
-      document.body.classList.add("is-air-rushing");
 
       clearTimeout(fastScrollTimer);
       fastScrollTimer = setTimeout(() => {
         if (!isAnimatingScroll) {
           airSpeedOverlay.classList.remove("is-active", "is-down");
-          document.body.classList.remove("is-air-rushing");
         }
       }, 240);
     }
 
     lastScrollY = curY;
     lastScrollTime = now;
-  }, { passive: true });
-
-  // 2. NAVBAR & MOBILE MENU
-  const navbar = document.getElementById("navbar");
-  const navToggle = document.getElementById("navToggle");
-  const navLinks = document.querySelector(".nav-links");
-
-  window.addEventListener("scroll", () => {
-    navbar.classList.toggle("scrolled", window.scrollY > 50);
   }, { passive: true });
 
   const setMenuState = (isOpen) => {
