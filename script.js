@@ -365,12 +365,21 @@ document.addEventListener("DOMContentLoaded", () => {
                       mouseY = startY;
 
                       setTimeout(() => {
-                        robotArmOverlay.style.transition = "transform 0.6s cubic-bezier(0.4, 0, 0.2, 1)";
-                        robotArmOverlay.style.transform = `translate3d(${offscreenX}px, ${startY - CLAW_CENTER_Y}px, 0)`;
-                        setTimeout(() => {
-                          robotArmOverlay.classList.remove("is-visible");
-                          isRobotCarrying = false;
-                        }, 600);
+                        const retractStart = performance.now();
+                        const retractDuration = 580;
+                        const retractStep = (t) => {
+                          const p = Math.min((t - retractStart) / retractDuration, 1);
+                          const eased = p * p * (3 - 2 * p);
+                          const curX = startX - CLAW_CENTER_X + (offscreenX - (startX - CLAW_CENTER_X)) * eased;
+                          robotArmOverlay.style.transform = `translate3d(${curX}px, ${startY - CLAW_CENTER_Y}px, 0)`;
+                          if (p < 1) {
+                            requestAnimationFrame(retractStep);
+                          } else {
+                            robotArmOverlay.classList.remove("is-visible");
+                            isRobotCarrying = false;
+                          }
+                        };
+                        requestAnimationFrame(retractStep);
                       }, 240);
                     }
                   };

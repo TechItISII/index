@@ -2820,3 +2820,15 @@ a { text-decoration: none; color: inherit; }
     cursor: none !important;
   }
 }
+
+/* GPU Compositing Hints for 60/120fps Desktop & Mobile Smoothness */
+.wind-streak,
+.cyber-portal,
+.cursor-target-acquired {
+  will-change: transform, opacity;
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+}
+.section {
+  contain: layout style;
+}
